@@ -1,0 +1,10 @@
+# POST {{hostname}}/auth-service
+POST http://localhost:3000/api
+Content-Type: application/json
+Authorization: Bearer {{apikey}}
+Signature: ef1bbc8802e6d5702a51a0e04937d28ba8a5ab318dfc692fb19c41120a8009dd
+
+{
+	"walletAddress": "0xf5e524eEaed0030B96EF9B931e4c76527BE00950",
+	"email": "paul@ocunapse.com"	
+}

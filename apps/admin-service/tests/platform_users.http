@@ -1,0 +1,26 @@
+# Get all users
+GET http://localhost:3000/api/platform/user
+Content-Type: application/json
+
+###
+# Search User by email or/and name
+GET http://localhost:3000/api/platform/user?email=tasha@xxx.com&name=tasha
+Content-Type: application/json
+
+###
+# Delete user
+DELETE http://localhost:3000/api/platform/user?walletAddress=0x0100C01b26ecBc22967D549184C5165Ad4840cE2
+Content-Type: application/json
+
+###
+DELETE http://localhost:3000/api/platform/user?email=johanessreuben@gmail.com
+Content-Type: application/json
+
+###
+# TODO: Change email
+PUT http://localhost:3000/api/platform/user/change-email/paul@ocunapse.com
+Content-Type: application/json
+
+{
+    "newEmail": "paul@dragonsoftcommunications.com"
+}

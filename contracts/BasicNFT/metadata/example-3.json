@@ -1,0 +1,63 @@
+{
+	"name": "KAMI Guardian #3",
+	"description": "A noble KAMI guardian sworn to protect the realm. This NFT represents a defensive specialist with strong protective abilities and unwavering loyalty.",
+	"image": "https://example.com/images/kami-guardian-3.png",
+	"external_url": "https://example.com/nft/guardian/3",
+	"attributes": [
+		{
+			"trait_type": "Rarity",
+			"value": "Rare"
+		},
+		{
+			"trait_type": "Class",
+			"value": "Guardian"
+		},
+		{
+			"trait_type": "Background",
+			"value": "Forest"
+		},
+		{
+			"trait_type": "Shield",
+			"value": "Iron Shield"
+		},
+		{
+			"trait_type": "Power Level",
+			"value": 82
+		},
+		{
+			"trait_type": "Element",
+			"value": "Earth"
+		},
+		{
+			"trait_type": "Generation",
+			"value": 1
+		},
+		{
+			"trait_type": "Special Ability",
+			"value": "Shield Wall"
+		},
+		{
+			"trait_type": "Defense Rating",
+			"value": 95
+		}
+	],
+	"properties": {
+		"category": "image",
+		"files": [
+			{
+				"uri": "https://example.com/images/kami-guardian-3.png",
+				"type": "image/png"
+			}
+		],
+		"creators": [
+			{
+				"address": "0x1234567890123456789012345678901234567890",
+				"share": 100
+			}
+		]
+	},
+	"collection": {
+		"name": "KAMI NFT Collection",
+		"family": "KAMI"
+	}
+}

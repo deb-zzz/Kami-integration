@@ -1,0 +1,19 @@
+{
+	"name": "Culturemaker",
+	"contractAddress": "0xbe7e511ff0e2d4ecf55c493b839c0a6f62657070",
+	"tokenId": 4,
+	"tokenStandard": "ERC1155",
+	"description": "You give form to imagination. What begins as a quiet spark becomes presence movement and resonance, adding new layers to the space around you. Your insight is on point — revealing the hidden currents that quietly move the world, bringing to light the forces that shape how we create and connect.",
+	"htmlDescription": "<p class='p1'><span class='s1'>You give form to imagination.<br /> What begins as a quiet spark becomes presence<br /></span><span class='s1'>movement<br /></span><span class='s1'>and resonance,<br /> adding new layers to the space around you.</span></p><p class='p2'>Your insight is on point<br /><span class='s1'>&mdash; revealing the hidden currents<br /></span><span class='s1'>that quietly move the world,<br /> bringing to light the forces that shape<br /></span><span class='s1'>how we create and connect.</span></p><p class='p1'>&nbsp;</p>",
+	"image": "ipfs://QmagQSbPAT98MHhSCurY9xGePvPoU62z6xQejXkQRKAPKc",
+	"attributes": [
+		{
+			"trait_type": "Archetype",
+			"value": "Culturemaker"
+		},
+		{
+			"trait_type": "Series",
+			"value": "KAMI Genesis Sigil"
+		}
+	]
+}

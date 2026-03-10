@@ -1,0 +1,19 @@
+{
+	"name": "Tasteseeker",
+	"contractAddress": "0xbe7e511ff0e2d4ecf55c493b839c0a6f62657070",
+	"tokenId": 3,
+	"tokenStandard": "ERC1155",
+	"description": "You see what others can’t; the rising signals, hidden gems, and creative threads that define what comes next. You quietly influence culture without needing the spotlight — the North Star that guides creators, communities and industries toward what truly matters.",
+	"htmlDescription": "<p class='p1'><span class='s1'>You see what others can&rsquo;t;<br /></span><span class='s1'>the rising signals,<br /></span><span class='s1'>hidden gems,<br /></span><span class='s1'>and creative threads<br /></span><span class='s1'>that define what comes next.<span class='Apple-converted-space'>&nbsp;</span></span></p><p class='p2'>You quietly influence culture<br /><span class='s1'>without needing the spotlight<br /></span><span class='s1'>&mdash; the North Star that guides<br /></span><span class='s1'>creators, communities and industries<br /></span><span class='s1'>toward what truly matters.</span></p><p class='p1'>&nbsp;</p>",
+	"image": "ipfs://QmYUevVtvEYMNLEzqJ2797px8XCUB5KkriXSPCGuHoMeHr",
+	"attributes": [
+		{
+			"trait_type": "Archetype",
+			"value": "Tasteseeker"
+		},
+		{
+			"trait_type": "Series",
+			"value": "KAMI Genesis Sigil"
+		}
+	]
+}

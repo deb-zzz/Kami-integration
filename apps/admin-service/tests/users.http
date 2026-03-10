@@ -1,0 +1,54 @@
+#POST https://api-gateway.kami.ocu-napse.com/admin-service/login
+POST http://localhost:3000/api/login
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+Signature: 54bbde14642bd789caf2e80bed46e0251869b282a579044c080f26f0dd13723d
+
+{
+	"email": "paul@kamiunlimited.com",
+	"password": "Simple-01",
+	"encoded": false,
+	"reset": true
+}
+
+###
+POST http://localhost:3001/api/user
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+Token: eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+
+{
+	"email": "paul@kamiunlimited.com",
+	"password": "Simple-01",
+	"name": "Paul Stinchcombe",
+	"role": "admin",
+	"encoded": false
+}
+
+###
+
+GET https://api-gateway.kami.ocu-napse.com/admin-service/user
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+Token: eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+
+###
+
+GET https://api-gateway.kami.ocu-napse.com/admin-service/charges
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+Token: eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+
+###
+
+POST https://api-gateway.kami.ocu-napse.com/admin-service/charges
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+Token: eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+Signature: c2a3bd9c49bbf6e6b051735d7c543686873e47a57ad1ee8f96d6684d5c2b0142
+
+{
+	"type": "Mint",
+	"fixedAmount": 0,
+	"percentage": 5.0
+}

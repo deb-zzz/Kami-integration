@@ -1,0 +1,23 @@
+{
+	"compilerOptions": {
+		"target": "ES2020",
+		"module": "commonjs",
+		"lib": ["ES2020"],
+		"outDir": "./dist",
+		"rootDir": ".",
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["src/*"]
+		},
+		"strict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"resolveJsonModule": true,
+		"declaration": true,
+		"declarationMap": true,
+		"sourceMap": true
+	},
+	"include": ["src/**/*", "kami-platform-v1-schema/lib/**/*"],
+	"exclude": ["node_modules", "dist", "kami-platform-v1-schema/prisma", "kami-platform-v1-schema/DB_Pusher"]
+}

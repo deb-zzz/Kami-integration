@@ -1,0 +1,552 @@
+{
+	"info": {
+		"name": "KAMI Sigils API",
+		"description": "Postman collection for KAMI Sigils API - ExpressJS API for deploying and interacting with KamiSigils ERC1155 contract",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "kami-sigils-api"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/health",
+							"host": ["{{baseUrl}}"],
+							"path": ["health"]
+						},
+						"description": "Check if the API server is running and healthy"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Sigils",
+			"item": [
+				{
+					"name": "Deploy Contract",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"initialUri\": \"https://example.com/metadata/{id}.json\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/sigils/deploy",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "sigils", "deploy"]
+						},
+						"description": "Deploy a new ERC1155 contract instance with an initial URI"
+					},
+					"response": []
+				},
+				{
+					"name": "Get URI",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/sigils/uri/:tokenId?contractAddress={{contractAddress}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "sigils", "uri", ":tokenId"],
+							"variable": [
+								{
+									"key": "tokenId",
+									"value": "1",
+									"description": "Token ID (1-6)"
+								}
+							],
+							"query": [
+								{
+									"key": "contractAddress",
+									"value": "{{contractAddress}}",
+									"description": "Optional contract address (uses env var if not provided)",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get the URI for a specific token ID (must be between 1 and 6)"
+					},
+					"response": []
+				},
+				{
+					"name": "Set Token URI",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tokenId\": 1,\n  \"newUri\": \"https://example.com/metadata/new.json\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/sigils/set-token-uri?contractAddress={{contractAddress}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "sigils", "set-token-uri"],
+							"query": [
+								{
+									"key": "contractAddress",
+									"value": "{{contractAddress}}",
+									"description": "Optional contract address (uses env var if not provided)"
+								}
+							]
+						},
+						"description": "Set the URI for a token ID (owner only). Token ID must be between 1 and 6."
+					},
+					"response": []
+				},
+				{
+					"name": "Mint Tokens",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tokenId\": 1,\n  \"amount\": 10,\n  \"recipient\": \"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/sigils/mint?contractAddress={{contractAddress}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "sigils", "mint"],
+							"query": [
+								{
+									"key": "contractAddress",
+									"value": "{{contractAddress}}",
+									"description": "Optional contract address (uses env var if not provided)"
+								}
+							]
+						},
+						"description": "Mint tokens to a recipient (owner only). Token ID must be between 1 and 6, amount must be positive."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Total Supply",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/sigils/total-supply/:tokenId?contractAddress={{contractAddress}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "sigils", "total-supply", ":tokenId"],
+							"variable": [
+								{
+									"key": "tokenId",
+									"value": "1",
+									"description": "Token ID (1-6)"
+								}
+							],
+							"query": [
+								{
+									"key": "contractAddress",
+									"value": "{{contractAddress}}",
+									"description": "Optional contract address (uses env var if not provided)"
+								}
+							]
+						},
+						"description": "Get the total supply for a specific token ID (must be between 1 and 6)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Balance",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/sigils/balance/:owner/:tokenId?contractAddress={{contractAddress}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "sigils", "balance", ":owner", ":tokenId"],
+							"variable": [
+								{
+									"key": "owner",
+									"value": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+									"description": "Owner wallet address"
+								},
+								{
+									"key": "tokenId",
+									"value": "1",
+									"description": "Token ID (1-6)"
+								}
+							],
+							"query": [
+								{
+									"key": "contractAddress",
+									"value": "{{contractAddress}}",
+									"description": "Optional contract address (uses env var if not provided)"
+								}
+							]
+						},
+						"description": "Get the balance of a specific token ID for an owner address"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Referrals",
+			"item": [
+				{
+					"name": "Create Referral",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"code\": \"REF123\",\n  \"source\": \"twitter\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/referrals/referral",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "referrals", "referral"]
+						},
+						"description": "Creates a new referral entry. The wallet address is automatically determined from the referral code. Points are awarded automatically (default: 100 points per referral). If all referral codes for a user are used, additional bonus points are awarded (default: 100 points)."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Referral Codes for User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/referrals/referralCodes?walletAddress={{walletAddress}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "referrals", "referralCodes"],
+							"query": [
+								{
+									"key": "walletAddress",
+									"value": "{{walletAddress}}",
+									"description": "Wallet address to query referral codes for"
+								}
+							]
+						},
+						"description": "Retrieves all referral codes associated with a specific wallet address"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Referral Points",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"walletAddress\": \"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb\",\n  \"pointsToAdd\": 50\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/referrals/addReferralPoints",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "referrals", "addReferralPoints"]
+						},
+						"description": "Manually add referral points to a user. Points must be greater than 0."
+					},
+					"response": []
+				},
+				{
+					"name": "Set Referral Code as Unused",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"code\": \"REF123\",\n  \"force\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/referrals/setReferralCodeAsUnused",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "referrals", "setReferralCodeAsUnused"]
+						},
+						"description": "Mark a referral code as unused. If force is true, will delete existing referrals associated with the code before marking it as unused. If the code has referrals and force is false, the request will fail."
+					},
+					"response": []
+				},
+				{
+					"name": "Add Referral Links",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"walletAddress\": \"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb\",\n  \"links\": [\"https://kami.com/ref/ABC123\", \"https://kami.com/ref/XYZ789\"],\n  \"sources\": [\"twitter\", \"discord\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/referrals/addReferralLinks",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "referrals", "addReferralLinks"]
+						},
+						"description": "Add referral links to the database. Links must be unique (not already exist in database). Sources array must be the same length as links array if provided."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Referral Links for User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/referrals/referralLinks?walletAddress={{walletAddress}}&full=false",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "referrals", "referralLinks"],
+							"query": [
+								{
+									"key": "walletAddress",
+									"value": "{{walletAddress}}",
+									"description": "Wallet address to query referral links for"
+								},
+								{
+									"key": "full",
+									"value": "false",
+									"description": "If true, returns full Prisma payload. If false or omitted, returns simplified format with just link and source",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Retrieves referral links for a user. Use full=true to get complete Prisma payload, or omit for simplified format."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Referral Link Quality",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"linkId\": \"uuid-here\",\n  \"quality\": 85\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/referrals/updateReferralLinkQuality",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "referrals", "updateReferralLinkQuality"]
+						},
+						"description": "Update the quality score of a referral link. Quality must be between 1 and 100. linkId is the UUID of the referral link."
+					},
+					"response": []
+				},
+				{
+					"name": "Generate Parent Referral Codes",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"quantity\": 50\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/referrals/generateParentReferralCodes",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "referrals", "generateParentReferralCodes"]
+						},
+						"description": "Generate unique 6-digit parent referral codes. Quantity must be between 1 and 100. Codes are checked for uniqueness against both referralCode and parentReferralCode tables."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Referrals for User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/referrals/referrals?walletAddress={{walletAddress}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "referrals", "referrals"],
+							"query": [
+								{
+									"key": "walletAddress",
+									"value": "{{walletAddress}}",
+									"description": "Wallet address to query referrals for"
+								}
+							]
+						},
+						"description": "Retrieves all referrals associated with a specific wallet address"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Referrals by Source",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/referrals/referrals/source?source=twitter",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "referrals", "referrals", "source"],
+							"query": [
+								{
+									"key": "source",
+									"value": "twitter",
+									"description": "Source/platform to filter referrals by (e.g., twitter, discord)"
+								}
+							]
+						},
+						"description": "Retrieves all referrals filtered by a specific source/platform"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Leaderboard",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/referrals/leaderboard?offset=0&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "referrals", "leaderboard"],
+							"query": [
+								{
+									"key": "offset",
+									"value": "0",
+									"description": "Number of records to skip (for pagination)",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Maximum number of records to return",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Retrieves the referral leaderboard with optional pagination"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Referral Points",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/referrals/userReferralPoints?walletAddress={{walletAddress}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "referrals", "userReferralPoints"],
+							"query": [
+								{
+									"key": "walletAddress",
+									"value": "{{walletAddress}}",
+									"description": "Wallet address to query points for"
+								}
+							]
+						},
+						"description": "Retrieves the total referral points for a specific wallet address"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Sigil",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/referrals/sigil?walletAddress={{walletAddress}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "referrals", "sigil"],
+							"query": [
+								{
+									"key": "walletAddress",
+									"value": "{{walletAddress}}",
+									"description": "Wallet address to query sigil for"
+								}
+							]
+						},
+						"description": "Retrieves the sigil URI (metadata) for a user's wallet address. Fetches the sigil ID from the database and then retrieves the URI from the smart contract."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Sigil",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"walletAddress\": \"0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb\",\n  \"tokenId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/referrals/createSigil",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "referrals", "createSigil"]
+						},
+						"description": "Creates a sigil NFT for a user. Mints the token, sets the metadata URI, and updates the user record. Token ID must be between 1 and 6. User must not already have a sigil."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "contractAddress",
+			"value": "",
+			"type": "string",
+			"description": "Contract address (optional, uses CONTRACT_ADDRESS env var if not provided)"
+		},
+		{
+			"key": "walletAddress",
+			"value": "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb",
+			"type": "string",
+			"description": "Example wallet address for testing"
+		}
+	]
+}

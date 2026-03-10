@@ -1,0 +1,193 @@
+name: KAMI721C CI/CD
+
+on:
+    push:
+        branches: [main, develop]
+    pull_request:
+        branches: [main, develop]
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  submodules: recursive
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: '18'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Install Solhint
+              run: npm install -g solhint
+
+            - name: Clean cache and artifacts
+              run: npx hardhat clean
+
+            - name: Run linter
+              run: |
+                  npm run lint || true
+                  solhint 'contracts/**/*.sol'
+
+            - name: Compile contracts
+              run: npx hardhat compile
+
+            - name: Run Hardhat tests
+              run: npx hardhat test --verbose
+              env:
+                  HARDHAT_VERBOSE: true
+
+            - name: Run coverage
+              run: npm run coverage || true
+
+            - name: Upload coverage reports
+              uses: codecov/codecov-action@v3
+              with:
+                  token: ${{ secrets.CODECOV_TOKEN }}
+              if: always()
+
+    deploy-testnet:
+        needs: test
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  submodules: recursive
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: '18'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Clean cache and artifacts
+              run: npx hardhat clean
+
+            - name: Compile contracts
+              run: npx hardhat compile
+
+            - name: Create .env file
+              run: |
+                  echo "PRIVATE_KEY=${{ secrets.DEPLOYER_PRIVATE_KEY }}" > .env
+                  echo "ETHERSCAN_API_KEY=${{ secrets.ETHERSCAN_API_KEY }}" >> .env
+                  echo "POLYGONSCAN_API_KEY=${{ secrets.POLYGONSCAN_API_KEY }}" >> .env
+                  echo "ALCHEMY_API_KEY=${{ secrets.ALCHEMY_API_KEY }}" >> .env
+                  echo "INFURA_API_KEY=${{ secrets.INFURA_API_KEY }}" >> .env
+
+            - name: Deploy to Sepolia
+              id: deploy
+              run: |
+                  set -o pipefail
+                  RESULT=$(npx hardhat run scripts/deploy_upgradeable.ts --network sepolia)
+                  echo "contractAddress=$(echo $RESULT | grep -oP 'Deployed at: \K[0-9a-fA-F]{42}')" >> $GITHUB_OUTPUT
+              continue-on-error: true
+
+            - name: Verify on Etherscan
+              run: npx hardhat verify --network sepolia ${{ steps.deploy.outputs.contractAddress }}
+              env:
+                  ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+              if: steps.deploy.outputs.contractAddress != ''
+              continue-on-error: true
+
+    deploy-mainnet:
+        needs: deploy-testnet
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  submodules: recursive
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: '18'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Clean cache and artifacts
+              run: npx hardhat clean
+
+            - name: Compile contracts
+              run: npx hardhat compile
+
+            - name: Create .env file
+              run: |
+                  echo "PRIVATE_KEY=${{ secrets.DEPLOYER_PRIVATE_KEY }}" > .env
+                  echo "ETHERSCAN_API_KEY=${{ secrets.ETHERSCAN_API_KEY }}" >> .env
+                  echo "POLYGONSCAN_API_KEY=${{ secrets.POLYGONSCAN_API_KEY }}" >> .env
+                  echo "ALCHEMY_API_KEY=${{ secrets.ALCHEMY_API_KEY }}" >> .env
+                  echo "INFURA_API_KEY=${{ secrets.INFURA_API_KEY }}" >> .env
+
+            - name: Deploy to Ethereum Mainnet
+              id: deploy-mainnet
+              run: |
+                  set -o pipefail
+                  RESULT=$(npx hardhat run scripts/deploy_upgradeable.ts --network mainnet)
+                  echo "contractAddress=$(echo $RESULT | grep -oP 'Deployed at: \K[0-9a-fA-F]{42}')" >> $GITHUB_OUTPUT
+              continue-on-error: true
+
+            - name: Verify on Etherscan
+              run: npx hardhat verify --network mainnet ${{ steps.deploy-mainnet.outputs.contractAddress }}
+              env:
+                  ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+              if: steps.deploy-mainnet.outputs.contractAddress != ''
+              continue-on-error: true
+
+    deploy-polygon:
+        needs: deploy-testnet
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  submodules: recursive
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: '18'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Clean cache and artifacts
+              run: npx hardhat clean
+
+            - name: Compile contracts
+              run: npx hardhat compile
+
+            - name: Create .env file
+              run: |
+                  echo "PRIVATE_KEY=${{ secrets.DEPLOYER_PRIVATE_KEY }}" > .env
+                  echo "ETHERSCAN_API_KEY=${{ secrets.ETHERSCAN_API_KEY }}" >> .env
+                  echo "POLYGONSCAN_API_KEY=${{ secrets.POLYGONSCAN_API_KEY }}" >> .env
+                  echo "ALCHEMY_API_KEY=${{ secrets.ALCHEMY_API_KEY }}" >> .env
+                  echo "INFURA_API_KEY=${{ secrets.INFURA_API_KEY }}" >> .env
+
+            - name: Deploy to Polygon Mainnet
+              id: deploy-polygon
+              run: |
+                  set -o pipefail
+                  RESULT=$(npx hardhat run scripts/deploy_upgradeable.ts --network polygon)
+                  echo "contractAddress=$(echo $RESULT | grep -oP 'Deployed at: \K[0-9a-fA-F]{42}')" >> $GITHUB_OUTPUT
+              continue-on-error: true
+
+            - name: Verify on Polygonscan
+              run: npx hardhat verify --network polygon ${{ steps.deploy-polygon.outputs.contractAddress }}
+              env:
+                  POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
+              if: steps.deploy-polygon.outputs.contractAddress != ''
+              continue-on-error: true

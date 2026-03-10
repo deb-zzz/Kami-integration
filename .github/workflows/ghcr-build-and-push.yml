@@ -1,0 +1,150 @@
+name: Build and Push App Images (GHCR)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project_path: apps/web
+            image_name: kami-platform-web
+          - project_path: apps/api-gateway
+            image_name: kami-platform-api-gateway
+          - project_path: apps/auth-service
+            image_name: kami-platform-auth-service
+          - project_path: apps/profile-service
+            image_name: kami-platform-profile-service
+          - project_path: apps/project-service
+            image_name: kami-platform-project-service
+          - project_path: apps/tag-service
+            image_name: kami-platform-tag-service
+          - project_path: apps/posts-service
+            image_name: kami-platform-posts-service
+          - project_path: apps/feed-service
+            image_name: kami-platform-feed-service
+          - project_path: apps/social-service
+            image_name: kami-platform-social-service
+          - project_path: apps/collections-service
+            image_name: kami-platform-collections-service
+          - project_path: apps/web3-service
+            image_name: kami-platform-web3-service
+          - project_path: apps/media-service
+            image_name: kami-platform-media-service
+          - project_path: apps/notifications-service
+            image_name: kami-platform-notifications-service
+          - project_path: apps/collaborate-service
+            image_name: kami-platform-collaborate-service
+          - project_path: apps/signin-service
+            image_name: kami-platform-signin-service
+          - project_path: apps/wallet-service
+            image_name: kami-platform-wallet-service
+          - project_path: apps/cart-service
+            image_name: kami-platform-cart-service
+          - project_path: apps/comm-service
+            image_name: kami-platform-comm-service
+          - project_path: apps/mailing-list-service
+            image_name: kami-platform-mailing-list-service
+          - project_path: apps/admin-service
+            image_name: kami-platform-admin-service
+          - project_path: apps/admin-service
+            image_name: kami-platform-admin-ui
+          - project_path: apps/web3-funding
+            image_name: kami-platform-web3-funding
+          - project_path: contracts/kami-referrals-service
+            image_name: kami-platform-referral-service
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Derive lowercase owner
+        id: prep
+        run: echo "owner_lc=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ steps.prep.outputs.owner_lc }}/${{ matrix.image_name }}
+          tags: |
+            type=ref,event=branch
+            type=sha
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.app
+          push: true
+          build-args: |
+            APP_PATH=${{ matrix.project_path }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-and-push-schema:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Derive lowercase owner
+        id: prep
+        run: echo "owner_lc=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ steps.prep.outputs.owner_lc }}/kami-platform-v1-schema
+          tags: |
+            type=ref,event=branch
+            type=sha
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push schema image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.dbpusher
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

@@ -1,0 +1,107 @@
+GET http://localhost:3001/api/s3/objects?folder=General
+
+###
+
+GET http://localhost:3001/api/s3/getProjectUrl/2?key=edubricks-logo.png
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA
+
+###
+POST http://localhost:3001/api/s3/url?c=Project&id=1
+Content-Type: application/json
+
+{
+    "folder": "Paul",
+    "name": "edubricks-logo.png",
+    "type": "image/png"
+}
+
+###
+
+POST http://localhost:3001/api/s3/url?id=2
+Content-Type: application/json
+
+{
+    "name": "edubricks-logo.png",
+    "type": "image/png"
+}
+
+#############################################################################################
+
+POST https://api-gateway.kami.ocu-napse.com/media-service/s3/url?id=0x1234567890&c=Profile
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA
+Signature: 1234567890
+
+{
+    "folder": "KAMI",
+    "name": "KAMI.jpg",
+    "type": "image/png"
+}
+
+###
+
+GET https://api-gateway.kami.ocu-napse.com/media-service/s3/getProjectUrl/999?key=KAMI/10-people-avatar-512.webp
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA
+
+###
+
+GET https://api-gateway.kami.ocu-napse.com/media-service/s3/objects
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA
+
+###
+
+POST http://localhost:3001/api/upload?id=999&c=Project
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="Aptrasco-SS.jpg"
+Content-Type: image/jpeg
+
+< /Users/paulstinchcombe/Pictures/Aptrasco-SS.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="folder"
+
+KAMI
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+# Test large file upload (will use multipart upload for files > 100MB)
+# NOTE: This is just a comment. To actually test, send the POST request below.
+POST http://localhost:3001/api/upload?id=998&c=Project
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="large-video.mp4"
+Content-Type: video/mp4
+
+< /Users/paulstinchcombe/videoCompress/Caleb.mp4
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="folder"
+
+Videos
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+# Check upload progress
+GET http://localhost:3001/api/upload/progress?uploadId=upload_1234567890_abc123def
+
+###
+
+# Update upload progress (internal use)
+POST http://localhost:3001/api/upload/progress
+Content-Type: application/json
+
+{
+    "uploadId": "upload_1234567890_abc123def",
+    "fileName": "large-video.mp4",
+    "totalSize": 1073741824,
+    "uploadedSize": 536870912,
+    "status": "uploading"
+}
+
+###
+
+# Clean up upload progress
+DELETE http://localhost:3001/api/upload/progress?uploadId=upload_1234567890_abc123def

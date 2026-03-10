@@ -1,0 +1,65 @@
+### Create a new Fiat currency
+POST http://localhost:3000/api/currency
+Content-Type: application/json
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+{
+  "symbol": "USD",
+  "name": "US Dollar",
+  "type": "Fiat",
+  "isActive": true
+}
+
+###
+
+### Create a new Crypto currency
+POST http://localhost:3000/api/currency
+Content-Type: application/json
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+{
+  "symbol": "ETH",
+  "name": "Ethereum",
+  "type": "Crypto",
+  "isActive": true
+}
+
+###
+
+### Get all currencies (with pagination)
+GET http://localhost:3000/api/currency
+
+###
+
+### Get all currencies with filters
+GET http://localhost:3000/api/currency?type=Fiat&isActive=true&page=1&perPage=10
+
+###
+
+### Get specific currency by symbol
+GET http://localhost:3000/api/currency/USD
+
+###
+
+### Update a currency
+PUT http://localhost:3000/api/currency
+Content-Type: application/json
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+{
+  "symbol": "USD",
+  "name": "United States Dollar",
+  "isActive": false
+}
+
+###
+
+### Soft delete a currency
+DELETE http://localhost:3000/api/currency/USD
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+###
+
+### Hard delete a currency (permanent)
+DELETE http://localhost:3000/api/currency/USD?force=true
+Authorization: Bearer YOUR_JWT_TOKEN_HERE

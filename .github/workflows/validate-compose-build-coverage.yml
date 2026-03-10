@@ -1,0 +1,108 @@
+name: Validate Compose Build Coverage
+
+on:
+  pull_request:
+    paths:
+      - compose.yml
+      - .github/workflows/ghcr-build-and-push.yml
+      - .github/workflows/validate-compose-build-coverage.yml
+  push:
+    branches: [main]
+    paths:
+      - compose.yml
+      - .github/workflows/ghcr-build-and-push.yml
+      - .github/workflows/validate-compose-build-coverage.yml
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate compose service coverage
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          contains() {
+            local needle="$1"
+            shift
+            for item in "$@"; do
+              if [[ "$item" == "$needle" ]]; then
+                return 0
+              fi
+            done
+            return 1
+          }
+
+          mapfile -t compose_services < <(
+            awk '
+              /^services:/ { in_services=1; next }
+              in_services && /^[^[:space:]]/ { in_services=0 }
+              in_services && /^    [a-zA-Z0-9-]+:/ {
+                svc=$1
+                sub(/:$/, "", svc)
+                print svc
+              }
+            ' compose.yml
+          )
+
+          # Services currently buildable from this monorepo.
+          buildable_services=(
+            platform
+            platform-admin
+            api-gateway
+            signin-service
+            wallet-service
+            cart-service
+            comm-service
+            s3media-service
+            admin-service
+            auth-service
+            notifications-service
+            post-service
+            web3-service
+            feed-service
+            profile-service
+            project-service
+            collections-service
+            collaboration-service
+            social-service
+            tag-service
+            mailing-list-service
+            referral-service
+            web3-funding-service
+            dbpusher
+          )
+
+          # Infra/third-party services intentionally not built by monorepo workflow.
+          infra_services=(
+            db
+            pgbouncer
+            redis
+            nginx-proxy-manager
+            nginx-db
+            kami-watchtower
+          )
+
+          all_known=("${buildable_services[@]}" "${infra_services[@]}")
+          unknown_found=()
+
+          for svc in "${compose_services[@]}"; do
+            if ! contains "$svc" "${all_known[@]}"; then
+              unknown_found+=("$svc")
+            fi
+          done
+
+          if [[ ${#unknown_found[@]} -gt 0 ]]; then
+            echo "::error::compose.yml includes unclassified services (update coverage workflow lists):"
+            printf ' - %s\n' "${unknown_found[@]}"
+          fi
+
+          if [[ ${#unknown_found[@]} -gt 0 ]]; then
+            exit 1
+          fi
+
+          echo "Compose service coverage validation passed."

@@ -1,0 +1,61 @@
+{
+  "name": "kami-platform-wallet-service",
+  "version": "1.0.0",
+  "description": "Wallet service for KAMI platform with ETH and USDC balance and transfer APIs",
+  "main": "dist/src/index.js",
+  "scripts": {
+    "build": "pnpm exec prisma generate --schema=node_modules/kami-platform-v1-schema/prisma/schema.prisma && tsc",
+    "start": "node dist/src/index.js",
+    "dev": "ts-node src/index.ts",
+    "dev:wallet-service": "ts-node src/index.ts",
+    "dev:watch": "ts-node --watch src/index.ts",
+    "test": "pnpm run test:api && pnpm run test:validation && pnpm run test:transaction && pnpm run test:transactions && pnpm run test:gas && pnpm run test:blockchain && pnpm run test:usdc-info && pnpm run test:enhanced-transactions",
+    "test:api": "node test/test-api.js",
+    "test:validation": "node test/test-validation.js",
+    "test:transaction": "node test/test-transaction-details.js",
+    "test:transactions": "node test/test-transactions.js",
+    "test:gas": "node test/test-gas-estimation.js",
+    "test:blockchain": "node test/test-blockchain.js",
+    "test:usdc-info": "node test/test-usdc-info.js",
+    "test:enhanced-transactions": "node test/test-enhanced-transactions.js"
+  },
+  "keywords": [
+    "ethereum",
+    "wallet",
+    "usdc",
+    "api",
+    "ethers"
+  ],
+  "author": "Paul | KAMI",
+  "license": "MIT",
+  "prisma": {
+    "schema": "node_modules/kami-platform-v1-schema/prisma/schema.prisma"
+  },
+  "dependencies": {
+    "@account-abstraction/contracts": "^0.8.0",
+    "@account-abstraction/sdk": "^0.6.0",
+    "@account-abstraction/utils": "^0.6.0",
+    "@prisma/client": "^6.16.3",
+    "@types/nodemailer": "^7.0.4",
+    "axios": "^1.12.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "ethers": "^6.8.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^8.1.0",
+    "helmet": "^7.1.0",
+    "nodemailer": "^7.0.11",
+    "permissionless": "^0.2.57",
+    "viem": "^2.37.7",
+    "zod": "^4.1.9",
+    "kami-platform-v1-schema": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.0",
+    "prisma": "^6.16.3",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.3.2"
+  }
+}

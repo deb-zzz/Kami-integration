@@ -1,0 +1,24 @@
+{
+	"name": "KAMI CTO #1",
+	"description": "A unique digital collectible from the KAMI CTO Collection. This NFT represents ownership of a special digital asset with unique properties and characteristics.",
+	"image": "ipfs://QmRXU4aDFofcWt9UbttR7SiRdHM2XodsEga1GFWBKK16pv",
+	"external_url": "https://app.kamiunlimited.com",
+	"attributes": [
+		{
+			"trait_type": "Rarity",
+			"value": "Legendary"
+		},
+		{
+			"trait_type": "Character",
+			"value": "Kami CTO"
+		},
+		{
+			"trait_type": "Generation",
+			"value": 1
+		}
+	],
+	"collection": {
+		"name": "Paul's Limited Edition NFT Collection",
+		"family": "KAMI CTO"
+	}
+}

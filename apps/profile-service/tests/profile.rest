@@ -1,0 +1,151 @@
+GET http://localhost:3001/api/0x16c607Dbe5e4959B159510C63925051e31d2E0A6?withProducts
+Content-Type: application/json
+
+###
+GET http://localhost:3001/api/0x0D95452bcB3859aD53CE27Ae5846B7eE3d2DcF8e?withProducts=true&withAssets=true&withProjects=true
+Content-Type: application/json
+
+###
+
+GET http://localhost:3000/api
+Content-Type: application/json
+
+###
+
+GET http://api-gateway.kami.ocu-napse.com/profile-service
+Content-Type: application/json
+Authorization: BEARER eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA
+
+###
+
+GET http://api-gateway.kami.ocu-napse.com/profile-service/0x16c607Dbe5e4959B159510C63925051e31d2E0A6?withProducts=true&withAssets=true&withProjects=true
+Content-Type: application/json
+Authorization: BEARER eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA
+
+###
+
+POST http://localhost:3000/api/0x16c607Dbe5e4959B159510C63925051e31d2E0A6/addTags
+Content-Type: application/json
+
+{
+    "tag": "Cars",
+    "type": "Interest"
+}
+
+
+###
+
+POST http://localhost:3000/api/0x16c607Dbe5e4959B159510C63925051e31d2E0A6/addTags
+Content-Type: application/json
+
+[{
+    "tag": "Driving",
+    "type": "Skill"
+}, {
+    "tag": "Cooking",
+    "type": "Skill"
+}, {
+    "tag": "Sailing",
+    "type": "Interest"
+}]
+
+
+###
+
+POST http://localhost:3000/api/0x16c607Dbe5e4959B159510C63925051e31d2E0A6/follow
+Content-Type: application/json
+
+{
+    "follow": "0x16c607Dbe5e4959B159510C63925051e31d2E0A6"
+}
+
+###
+
+GET http://localhost:3000/api/0x16c607Dbe5e4959B159510C63925051e31d2E0A6/follow
+Content-Type: application/json
+
+###
+
+DELETE http://localhost:3000/api/0x16c607Dbe5e4959B159510C63925051e31d2E0A6/follow
+Content-Type: application/json
+
+{
+    "unfollow": "0x16c607Dbe5e4959B159510C63925051e31d2E0A6"
+}
+
+###
+
+POST https://api-gateway.kami.ocu-napse.com/profile-service/0x16c607Dbe5e4959B159510C63925051e31d2E0A6/tags
+Content-Type: application/json
+Authorization: BEARER eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA
+
+{
+    "tag": "Motorcycles",
+    "type": "Interest"
+}
+
+###
+
+POST https://api-gateway.kami.ocu-napse.com/profile-service/0x16c607Dbe5e4959B159510C63925051e31d2E0A6/tags
+Content-Type: application/json
+Authorization: BEARER eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA
+
+[{
+    "tag": "Running",
+    "type": "Skill"
+}, {
+    "tag": "Teaching",
+    "type": "Skill"
+}, {
+    "tag": "Aviation",
+    "type": "Interest"
+}]
+
+
+###
+
+DELETE https://api-gateway.kami.ocu-napse.com/profile-service/0x16c607Dbe5e4959B159510C63925051e31d2E0A6/tags
+Content-Type: application/json
+Authorization: BEARER eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA
+
+{
+    "tagId": 33
+}
+
+###
+
+DELETE https://api-gateway.kami.ocu-napse.com/profile-service/0x16c607Dbe5e4959B159510C63925051e31d2E0A6/tags
+Content-Type: application/json
+Authorization: BEARER eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA
+
+{
+    "tagId": [33, 30, 32, 31]
+}
+
+
+### Spotlight ###
+
+GET http://localhost:3001/api/0x16c607Dbe5e4959B159510C63925051e31d2E0A6/spotlight
+Content-Type: application/json
+
+###
+
+PUT http://localhost:3001/api/0x16c607Dbe5e4959B159510C63925051e31d2E0A6/spotlight/8
+Content-Type: application/json
+
+{
+    "spotlight": true
+}
+
+
+### Collaborations ###
+
+GET http://localhost:3002/api/0x3a846f7601783f6869C53a5407d8cf85Bb22b997/collaborations
+Content-Type: application/json
+
+###
+
+GET http://localhost:3001/api/auth?username=p
+Content-Type: application/json
+
+

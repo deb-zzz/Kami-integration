@@ -1,0 +1,36 @@
+{
+  "name": "kami-platform-mailing-list-service",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "dev:mailing-list-service": "next dev --turbopack",
+    "build": "pnpm exec prisma generate --schema=node_modules/kami-platform-v1-schema/prisma/schema.prisma && next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "prisma": {
+    "schema": "node_modules/kami-platform-v1-schema/prisma/schema.prisma"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.16.0",
+    "ioredis": "^5.7.0",
+    "next": "15.4.6",
+    "prisma": "^6.16.0",
+    "prisma-redis-middleware": "^4.8.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "kami-platform-v1-schema": "workspace:*"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.4.6",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

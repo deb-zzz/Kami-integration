@@ -1,0 +1,10 @@
+src/
+scripts/
+tsconfig.json
+tsconfig.esm.json
+dist-cjs/
+dist-es/
+node_modules/
+*.log
+.DS_Store
+

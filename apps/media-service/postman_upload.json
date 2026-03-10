@@ -1,0 +1,50 @@
+{
+	"info": {
+		"name": "Upload File to /api/upload",
+		"_postman_id": "b1e2c3d4-5678-1234-9abc-def012345678",
+		"description": "Uploads a file to the /api/upload endpoint with folder parameter",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Upload File",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/Users/paulstinchcombe/Pictures/Aptrasco-SS.jpg"
+						},
+						{
+							"key": "folder",
+							"type": "text",
+							"value": "KAMI"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/upload?id=999&c=Project",
+					"protocol": "http",
+					"host": ["localhost"],
+					"port": "3000",
+					"path": ["api", "upload"],
+					"query": [
+						{
+							"key": "id",
+							"value": "999"
+						},
+						{
+							"key": "c",
+							"value": "Project"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

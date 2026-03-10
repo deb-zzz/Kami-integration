@@ -1,0 +1,61 @@
+### Checkout to create orders
+
+POST http://localhost:3000/api/checkout
+Content-Type: application/json
+
+{
+  "fromWalletAddress": "<user_wallet_address>",
+  "paymentType": "Crypto",
+  "currency": "USDC",
+  "items": [
+    {
+      "productId": 13,
+      "quantity": 1
+    },
+    {
+      "productId": 14,
+      "quantity": 1
+    },
+    {
+      "productId": 31,
+      "quantity": 1
+    }
+  ]
+}
+
+### Update checkout orders status if currently New to Pending
+
+PUT http://localhost:3000/api/checkout
+Content-Type: application/json
+
+{
+  "checkoutId": "<checkout_uuid>"
+}
+
+### Update checkout orders status if currently Pending to Completed
+
+PUT http://localhost:3000/api/checkout
+Content-Type: application/json
+
+{
+  "checkoutId": "<checkout_uuid>",
+  "paymentId": "<transaction_hash_id>"
+}
+
+### Update checkout orders status if currently Pending to Failed
+
+PUT http://localhost:3000/api/checkout
+Content-Type: application/json
+
+{
+  "checkoutId": "<checkout_uuid>",
+  "isFailed": true
+}
+
+###  Get all checkout orders status by wallet address
+
+GET http://localhost:3000/api/checkout?walletAddress=<wallet_address>
+
+### Get specific checkout by ID
+
+GET http://localhost:3000/api/checkout/91cc65d1-f1c2-424b-a80e-00a7d4cdb4d2

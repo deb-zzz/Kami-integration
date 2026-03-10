@@ -1,0 +1,29 @@
+GET https://api-gateway.kami.ocu-napse.com/collaboration-service/53
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+
+###
+
+POST http://localhost:3000/api/7/0x874c47f25B9B8800de739decE9B05e06a5044854
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+
+{
+    "message": "You have been invited to collaborate on this project",
+    "projectId": 7,
+    "status": "Invited",
+    "writeAccess": true
+}
+###
+
+GET http://localhost:3000/api/search/0xcE228C60C6D668aFBBd536f6d729fb69089AC878/?s=s
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+
+###
+
+GET https://api-gateway.kami.ocu-napse.com/collaboration-service/search/0xcE228C60C6D668aFBBd536f6d729fb69089AC878/?s=s
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+
+

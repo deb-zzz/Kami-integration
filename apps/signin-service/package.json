@@ -1,0 +1,52 @@
+{
+  "name": "kami-platform-signin-service",
+  "version": "1.0.0",
+  "description": "OTP generation and validation service for KAMI Platform",
+  "main": "dist/index.js",
+  "prisma": {
+    "schema": "node_modules/kami-platform-v1-schema/prisma/schema.prisma"
+  },
+  "scripts": {
+    "build": "pnpm exec prisma generate --schema=node_modules/kami-platform-v1-schema/prisma/schema.prisma && tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev:signin-service": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint . --ext .ts",
+    "clean": "rimraf dist node_modules",
+    "preinstall": "npx only-allow pnpm"
+  },
+  "dependencies": {
+    "@prisma/client": "6.8.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "ethers": "^6.3.0",
+    "express": "^4.18.2",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.1.0",
+    "ioredis": "^5.3.2",
+    "nodemailer": "^7.0.3",
+    "prisma": "^6.8.2",
+    "winston": "^3.17.0",
+    "kami-platform-v1-schema": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.18",
+    "@types/express": "^4.17.22",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^20.17.50",
+    "@types/nodemailer": "^6.4.17",
+    "@types/supertest": "^6.0.2",
+    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@typescript-eslint/parser": "^8.32.1",
+    "eslint": "^9.27.0",
+    "jest": "^29.7.0",
+    "rimraf": "^6.0.1",
+    "supertest": "^6.3.4",
+    "ts-jest": "^29.3.4",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.8.3"
+  },
+  "packageManager": "pnpm@7.33.6"
+}

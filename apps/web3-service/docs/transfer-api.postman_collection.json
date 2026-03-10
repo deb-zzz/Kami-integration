@@ -1,0 +1,60 @@
+{
+	"info": {
+		"_postman_id": "f1e2d3c4-b5a6-4978-8c0d-9e1f2a3b4c5d",
+		"name": "KAMI Web3 Service - Transfer API",
+		"description": "Gasless payment token transfer from a platform user to another wallet. Set `baseUrl` (e.g. `http://localhost:3000`) in collection or environment variables. Requires sender to be a platform user with wallet key; recipient may be any address (charge applied if not a platform user when configured).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000"
+		},
+		{
+			"key": "chainId",
+			"value": "0x14a34"
+		},
+		{
+			"key": "fromWalletAddress",
+			"value": "0x0000000000000000000000000000000000000001"
+		},
+		{
+			"key": "toWalletAddress",
+			"value": "0x0000000000000000000000000000000000000002"
+		},
+		{
+			"key": "tokenSymbol",
+			"value": "USDC"
+		},
+		{
+			"key": "amount",
+			"value": "10"
+		}
+	],
+	"item": [
+		{
+			"name": "Transfer (gasless)",
+			"_postman_id": "a1b2c3d4-e5f6-4a70-8c9d-0e1f2a3b4c5d",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"chainId\": \"{{chainId}}\",\n  \"fromWalletAddress\": \"{{fromWalletAddress}}\",\n  \"toWalletAddress\": \"{{toWalletAddress}}\",\n  \"tokenSymbol\": \"{{tokenSymbol}}\",\n  \"amount\": {{amount}}\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/transfer",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "transfer"]
+				},
+				"description": "Gasless transfer of payment tokens from a platform user wallet to another address.\n\n**Body:**\n- `chainId` (string) – Chain ID (hex e.g. 0x14a34 or decimal)\n- `fromWalletAddress` (string) – Sender wallet (must be a platform user with key)\n- `toWalletAddress` (string) – Recipient wallet (must differ from from)\n- `tokenSymbol` (string) – Payment token symbol (e.g. USDC)\n- `amount` (number) – Amount in token units (human-readable, e.g. 10)\n\n**Responses:**\n- 200: `{ success: true, transactionHash, chargeApplied? }`\n- 400: Same from/to, invalid body, or invalid amount\n- 402: Insufficient payment token balance\n- 403: Sender not platform user or not authorized for gasless\n- 404: Payment token not found for chainId + tokenSymbol\n- 500: Transfer or server error"
+			}
+		}
+	]
+}

@@ -1,0 +1,11 @@
+POST http://localhost:3001/api
+Content-Type: application/json
+
+{
+	"email": "test@test.com",
+	"name": "Test Updated User"
+}
+
+###
+
+GET http://localhost:3001/api

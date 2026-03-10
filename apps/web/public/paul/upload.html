@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Chunked File Upload with Progress</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				max-width: 800px;
+				margin: 0 auto;
+				padding: 20px;
+				background-color: #f5f5f5;
+			}
+			.upload-container {
+				background: white;
+				padding: 30px;
+				border-radius: 10px;
+				box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+			}
+			.file-input {
+				margin: 20px 0;
+				padding: 10px;
+				border: 2px dashed #ddd;
+				border-radius: 5px;
+				text-align: center;
+				cursor: pointer;
+			}
+			.file-input:hover {
+				border-color: #007bff;
+			}
+			.progress-container {
+				margin: 20px 0;
+				display: none;
+			}
+			.progress-bar {
+				width: 100%;
+				height: 20px;
+				background-color: #f0f0f0;
+				border-radius: 10px;
+				overflow: hidden;
+				margin-bottom: 10px;
+			}
+			.progress-fill {
+				height: 100%;
+				background: linear-gradient(90deg, #007bff, #0056b3);
+				width: 0%;
+				transition: width 0.3s ease;
+			}
+			.progress-text {
+				margin-top: 10px;
+				text-align: center;
+				font-weight: bold;
+			}
+			.upload-btn {
+				background: #007bff;
+				color: white;
+				border: none;
+				padding: 12px 24px;
+				border-radius: 5px;
+				cursor: pointer;
+				font-size: 16px;
+				margin: 10px 5px;
+			}
+			.upload-btn:hover {
+				background: #0056b3;
+			}
+			.upload-btn:disabled {
+				background: #ccc;
+				cursor: not-allowed;
+			}
+			.result {
+				margin-top: 20px;
+				padding: 15px;
+				border-radius: 5px;
+				display: none;
+			}
+			.success {
+				background: #d4edda;
+				border: 1px solid #c3e6cb;
+				color: #155724;
+			}
+			.error {
+				background: #f8d7da;
+				border: 1px solid #f5c6cb;
+				color: #721c24;
+			}
+			.file-info {
+				margin: 10px 0;
+				padding: 10px;
+				background: #f8f9fa;
+				border-radius: 5px;
+			}
+			.form-group {
+				margin: 15px 0;
+			}
+			.form-group label {
+				display: block;
+				margin-bottom: 5px;
+				font-weight: bold;
+			}
+			.form-group input,
+			.form-group select {
+				width: 100%;
+				padding: 8px;
+				border: 1px solid #ddd;
+				border-radius: 4px;
+				box-sizing: border-box;
+			}
+			.chunk-progress {
+				margin-top: 10px;
+				font-size: 14px;
+				color: #666;
+			}
+			.phase-indicator {
+				margin: 10px 0;
+				padding: 8px;
+				background: #e9ecef;
+				border-radius: 4px;
+				font-weight: bold;
+			}
+			.phase-uploading {
+				background: #cce5ff;
+				color: #004085;
+			}
+			.phase-assembling {
+				background: #fff3cd;
+				color: #856404;
+			}
+			.phase-uploading-s3 {
+				background: #d1ecf1;
+				color: #0c5460;
+			}
+			.phase-completed {
+				background: #d4edda;
+				color: #155724;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="upload-container">
+			<h1>Chunked File Upload with Progress</h1>
+			<p>
+				Upload files up to 5GB with real-time progress tracking. Files are uploaded in 5MB chunks for better performance and
+				progress indication.
+			</p>
+
+			<form id="uploadForm">
+				<div class="form-group">
+					<label for="projectId">Project ID:</label>
+					<input type="text" id="projectId" value="999" required />
+				</div>
+
+				<div class="form-group">
+					<label for="category">Category:</label>
+					<select id="category">
+						<option value="project">Project</option>
+						<option value="product">Product</option>
+						<option value="profile">Profile</option>
+					</select>
+				</div>
+
+				<div class="form-group">
+					<label for="folder">Folder (optional):</label>
+					<input type="text" id="folder" placeholder="e.g., Videos, Images" />
+				</div>
+
+				<div class="file-input" onclick="document.getElementById('fileInput').click()">
+					<input type="file" id="fileInput" style="display: none" accept="*/*" />
+					<p>Click to select a file or drag and drop</p>
+					<p>Maximum file size: 5GB</p>
+				</div>
+
+				<div id="fileInfo" class="file-info" style="display: none">
+					<strong>Selected file:</strong> <span id="fileName"></span><br />
+					<strong>Size:</strong> <span id="fileSize"></span><br />
+					<strong>Chunks:</strong> <span id="chunkCount"></span>
+				</div>
+
+				<div class="progress-container" id="progressContainer">
+					<div class="phase-indicator" id="phaseIndicator">Ready to upload</div>
+					<div class="progress-bar">
+						<div class="progress-fill" id="progressFill"></div>
+					</div>
+					<div class="progress-text" id="progressText">0%</div>
+					<div class="chunk-progress" id="chunkProgress"></div>
+					<div id="progressDetails"></div>
+				</div>
+
+				<button type="submit" class="upload-btn" id="uploadBtn">Upload File</button>
+				<!-- <button type="button" class="upload-btn" id="cancelBtn" style="display: none; background: #dc3545">Cancel Upload</button> -->
+			</form>
+
+			<div id="result" class="result"></div>
+		</div>
+
+		<script>
+			let currentUploadId = null;
+			let progressInterval = null;
+			let abortController = null;
+			let selectedFile = null;
+			const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks
+
+			// File input handling
+			document.getElementById('fileInput').addEventListener('change', function (e) {
+				const file = e.target.files[0];
+				if (file) {
+					selectedFile = file;
+					document.getElementById('fileName').textContent = file.name;
+					document.getElementById('fileSize').textContent = formatFileSize(file.size);
+					const chunkCount = Math.ceil(file.size / CHUNK_SIZE);
+					document.getElementById('chunkCount').textContent = chunkCount;
+					document.getElementById('fileInfo').style.display = 'block';
+				}
+			});
+
+			// Drag and drop handling
+			const fileInput = document.querySelector('.file-input');
+			fileInput.addEventListener('dragover', function (e) {
+				e.preventDefault();
+				fileInput.style.borderColor = '#007bff';
+			});
+
+			fileInput.addEventListener('dragleave', function (e) {
+				e.preventDefault();
+				fileInput.style.borderColor = '#ddd';
+			});
+
+			fileInput.addEventListener('drop', function (e) {
+				e.preventDefault();
+				fileInput.style.borderColor = '#ddd';
+				const files = e.dataTransfer.files;
+				if (files.length > 0) {
+					document.getElementById('fileInput').files = files;
+					document.getElementById('fileInput').dispatchEvent(new Event('change'));
+				}
+			});
+
+			// Form submission
+			document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+				e.preventDefault();
+
+				if (!selectedFile) {
+					showResult('Please select a file to upload.', 'error');
+					return;
+				}
+
+				const projectId = document.getElementById('projectId').value;
+				const category = document.getElementById('category').value;
+				const folder = document.getElementById('folder').value;
+
+				await uploadFileChunked(selectedFile, projectId, category, folder);
+			});
+
+			// Cancel upload
+			document.getElementById('cancelBtn').addEventListener('click', function () {
+				if (abortController) {
+					abortController.abort();
+					showResult('Upload cancelled.', 'error');
+					resetUpload();
+				}
+			});
+
+			async function uploadFileChunked(file, projectId, category, folder) {
+				const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+				const uploadId = `chunked_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+				// Create abort controller for cancellation
+				abortController = new AbortController();
+
+				// Show progress UI
+				document.getElementById('progressContainer').style.display = 'block';
+				document.getElementById('uploadBtn').disabled = true;
+				document.getElementById('cancelBtn').style.display = 'inline-block';
+				updatePhase('uploading', 'Uploading chunks to server...');
+
+				try {
+					let uploadedChunks = 0;
+					let totalUploadedSize = 0;
+
+					// Upload chunks sequentially
+					for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+						if (abortController.signal.aborted) {
+							throw new Error('Upload cancelled');
+						}
+
+						const start = chunkIndex * CHUNK_SIZE;
+						const end = Math.min(start + CHUNK_SIZE, file.size);
+						const chunk = file.slice(start, end);
+
+						// Create form data for this chunk
+						const formData = new FormData();
+						formData.append('chunk', chunk);
+						formData.append('uploadId', uploadId);
+						formData.append('chunkIndex', chunkIndex.toString());
+						formData.append('totalChunks', totalChunks.toString());
+						formData.append('fileName', file.name);
+						formData.append('fileSize', file.size.toString());
+						if (folder) {
+							formData.append('folder', folder);
+						}
+
+						const url = `http://s3media-service:3000/api/upload?id=${projectId}&c=${category}`;
+
+						// Upload chunk
+						const response = await fetch(url, {
+							method: 'POST',
+							body: formData,
+							signal: abortController.signal,
+						});
+
+						if (!response.ok) {
+							const error = await response.json();
+							throw new Error(error.error || 'Chunk upload failed');
+						}
+
+						const result = await response.json();
+						uploadedChunks++;
+						totalUploadedSize += chunk.size;
+
+						// Update progress
+						const chunkProgress = (uploadedChunks / totalChunks) * 100;
+						updateProgress(chunkProgress, file.size, totalUploadedSize);
+						updateChunkProgress(uploadedChunks, totalChunks, chunkIndex + 1);
+
+						console.log(`Uploaded chunk ${chunkIndex + 1}/${totalChunks}`);
+					}
+
+					// All chunks uploaded, start monitoring S3 upload
+					currentUploadId = uploadId;
+					updatePhase('assembling', 'Assembling file...');
+					startProgressTracking();
+				} catch (error) {
+					if (error.name === 'AbortError') {
+						showResult('Upload cancelled.', 'error');
+					} else {
+						showResult(`Upload failed: ${error.message}`, 'error');
+					}
+					resetUpload();
+				}
+			}
+
+			function startProgressTracking() {
+				if (!currentUploadId) return;
+
+				progressInterval = setInterval(async () => {
+					try {
+						const response = await fetch(`http://s3media-service:3000/api/upload?uploadId=${currentUploadId}`);
+						const status = await response.json();
+
+						if (response.ok) {
+							// Update phase based on status
+							switch (status.status) {
+								case 'uploading':
+									updatePhase('uploading', 'Uploading chunks to server...');
+									break;
+								case 'assembling':
+									updatePhase('assembling', 'Assembling file...');
+									break;
+								case 'uploading_to_s3':
+									updatePhase('uploading-s3', 'Uploading to S3...');
+									break;
+								case 'completed':
+									updatePhase('completed', 'Upload completed!');
+									break;
+								case 'failed':
+									updatePhase('failed', 'Upload failed');
+									break;
+							}
+
+							// Update progress if we have detailed progress info
+							if (status.uploadedSize !== undefined && status.percentage !== undefined) {
+								updateProgress(status.percentage, status.fileSize, status.uploadedSize, status.estimatedTimeRemaining);
+							} else {
+								// Fallback to chunk-based progress
+								const chunkProgress = (status.receivedChunks / status.totalChunks) * 100;
+								updateProgress(
+									chunkProgress,
+									status.fileSize,
+									(status.receivedChunks / status.totalChunks) * status.fileSize
+								);
+							}
+
+							if (status.status === 'completed') {
+								clearInterval(progressInterval);
+								showResult(
+									`Upload completed!<br>
+                                <strong>File:</strong> ${status.fileName}<br>
+                                <strong>Size:</strong> ${formatFileSize(status.fileSize)}<br>
+                                <strong>Method:</strong> Chunked Upload`,
+									'success'
+								);
+								resetUpload();
+							} else if (status.status === 'failed') {
+								clearInterval(progressInterval);
+								showResult(`Upload failed: ${status.error || 'Unknown error'}`, 'error');
+								resetUpload();
+							}
+						} else {
+							console.error('Failed to fetch progress:', status.error);
+						}
+					} catch (error) {
+						console.error('Error fetching progress:', error);
+					}
+				}, 1000); // Check every second
+			}
+
+			function updatePhase(phase, message) {
+				const phaseIndicator = document.getElementById('phaseIndicator');
+				phaseIndicator.textContent = message;
+				phaseIndicator.className = `phase-indicator phase-${phase}`;
+			}
+
+			function updateProgress(percentage, totalSize, uploadedSize, estimatedTimeRemaining = null) {
+				document.getElementById('progressFill').style.width = percentage + '%';
+				document.getElementById('progressText').textContent = Math.round(percentage) + '%';
+
+				let details = `Uploaded: ${formatFileSize(uploadedSize)} / ${formatFileSize(totalSize)}`;
+				if (estimatedTimeRemaining && estimatedTimeRemaining > 0) {
+					details += ` | ETA: ${formatTime(estimatedTimeRemaining)}`;
+				}
+				document.getElementById('progressDetails').textContent = details;
+			}
+
+			function updateChunkProgress(uploadedChunks, totalChunks, currentChunk) {
+				document.getElementById(
+					'chunkProgress'
+				).textContent = `Chunk ${currentChunk} of ${totalChunks} (${uploadedChunks} uploaded)`;
+			}
+
+			function showResult(message, type) {
+				const resultDiv = document.getElementById('result');
+				resultDiv.innerHTML = message;
+				resultDiv.className = `result ${type}`;
+				resultDiv.style.display = 'block';
+			}
+
+			function resetUpload() {
+				document.getElementById('uploadBtn').disabled = false;
+				document.getElementById('cancelBtn').style.display = 'none';
+				document.getElementById('progressContainer').style.display = 'none';
+				document.getElementById('progressFill').style.width = '0%';
+				document.getElementById('progressText').textContent = '0%';
+				document.getElementById('progressDetails').textContent = '';
+				document.getElementById('chunkProgress').textContent = '';
+				updatePhase('ready', 'Ready to upload');
+
+				if (progressInterval) {
+					clearInterval(progressInterval);
+					progressInterval = null;
+				}
+
+				currentUploadId = null;
+				abortController = null;
+			}
+
+			function formatFileSize(bytes) {
+				if (bytes === 0) return '0 Bytes';
+				const k = 1024;
+				const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+				const i = Math.floor(Math.log(bytes) / Math.log(k));
+				return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+			}
+
+			function formatTime(milliseconds) {
+				const seconds = Math.floor(milliseconds / 1000);
+				const minutes = Math.floor(seconds / 60);
+				const hours = Math.floor(minutes / 60);
+
+				if (hours > 0) {
+					return `${hours}h ${minutes % 60}m`;
+				} else if (minutes > 0) {
+					return `${minutes}m ${seconds % 60}s`;
+				} else {
+					return `${seconds}s`;
+				}
+			}
+		</script>
+	</body>
+</html>

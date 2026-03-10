@@ -1,0 +1,40 @@
+POST http://localhost:3000/api/charges
+Content-Type: application/json
+
+{
+  "typeId": "91cc65d1-f1c2-424b-a80e-00a7d4cdb4d2",
+  "description": "Test platform fee",
+  "location": "publish",
+  "fixedAmount": 0,
+  "percentage": 1.27
+}
+
+###
+
+GET http://localhost:3000/api/charges
+
+###
+
+GET http://localhost:3000/api/charges/91cc65d1-f1c2-424b-a80e-00a7d4cdb4d2
+
+###
+
+GET http://localhost:3000/api/charges/by-location?location=Publish
+
+###
+
+PUT http://localhost:3000/api/charges
+Content-Type: application/json
+
+{
+  "id": "6051f99a-eeec-452c-8b40-cbf6df04a5c8",
+  "typeId": "91cc65d1-f1c2-424b-a80e-00a7d4cdb4d2",
+  "description": "Test platform fee",
+  "location": "publish",
+  "fixedAmount": 0,
+  "percentage": 1.27
+}
+
+###
+
+DELETE http://localhost:3000/api/charges/45e7f7f1-e1be-4965-b6fe-6dacb581b943

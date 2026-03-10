@@ -1,0 +1,71 @@
+#GET http://localhost:3000/api/0x2aA933886ED3083A3EEed809EFA24Ce7D572B648
+GET http://localhost:3000/api/0xeaA30cdd68C6002e0ebA0Bed2374223561D0785E
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA
+
+###
+
+GET http://localhost:3000/api/0xcE228C60C6D668aFBBd536f6d729fb69089AC878/3
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA
+
+###
+
+POST http://localhost:3000/api/0xcE228C60C6D668aFBBd536f6d729fb69089AC878
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA
+
+{
+	"name": "Test Project 4",
+	"description": "Test Description 4",
+	"categoryId": 5
+}
+
+###
+
+
+PUT http://localhost:3000/api/0xcE228C60C6D668aFBBd536f6d729fb69089AC878/3
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA
+
+{
+	"name": "Testing Project",
+	"description": "Testing Description",
+	"categoryId": 1
+}
+
+###
+
+GET https://api-gateway.kami.ocu-napse.com/project-service/0xcE228C60C6D668aFBBd536f6d729fb69089AC878/3
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA
+
+###
+
+POST http://localhost:3000/api/0xeaA30cdd68C6002e0ebA0Bed2374223561D0785E/31/benefactors
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA
+
+{
+	"mint": {
+		"beneficiaries": [
+			{
+				"walletAddress": "0xfB31008a5b13067c9c1c85fB14bC19a03a2b1F5C",
+				"percentage": 100,
+				"role": "Designer"
+			}
+		]
+	},
+	"royalties": {
+		"percentage": 5,
+		"beneficiaries": [
+			{
+				"walletAddress": "0xfB31008a5b13067c9c1c85fB14bC19a03a2b1F5C",
+				"percentage": 100,
+				"role": "Boss"
+			}
+		]
+	}
+}
+
+###

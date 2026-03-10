@@ -1,0 +1,78 @@
+### Login admin
+http://localhost:3000/api/login
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+Signature: 54bbde14642bd789caf2e80bed46e0251869b282a579044c080f26f0dd13723d
+
+{
+  "email": "test@example.com",
+  "password": "Password@1",
+  "encoded": false
+}
+
+### Create admin user
+POST http://localhost:3001/api/user
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+Signature: 54bbde14642bd789caf2e80bed46e0251869b282a579044c080f26f0dd13723d
+
+{
+  "email": "test@example.com",
+  "password": "Password@1",
+  "name": "Test Admin User",
+  "role": "f8037af9-e660-447f-9d1f-c39f7a487edd",
+  "encoded": false
+}
+
+###
+PUT http://localhost:3001/api/user
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+Signature: 54bbde14642bd789caf2e80bed46e0251869b282a579044c080f26f0dd13723d
+
+{
+  "id": "51b4f79e-fae1-4626-859c-f39896f750bb",
+  "name": "Admin User Updated",
+  "roleId": "f8037af9-e660-447f-9d1f-c39f7a487edd"
+}
+
+### Change admin user password
+PUT http://localhost:3001/api/user/change-password
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+Signature: 54bbde14642bd789caf2e80bed46e0251869b282a579044c080f26f0dd13723d
+
+{
+  "email": "test@example.com",
+  "currentPassword": "OldPass123!",
+  "newPassword": "NewPass123!",
+  "encoded": false
+}
+
+### Get admin user listing is paginated response
+GET http://localhost:3001/api/user
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+
+### Get admin user by ID
+GET http://localhost:3001/api/user/98645433-9f17-42e4-9985-c566f8e8c45f
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+
+### Delete admin user by ID
+DELETE http://localhost:3001/api/user/98645433-9f17-42e4-9985-c566f8e8c45f
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+Signature: 54bbde14642bd789caf2e80bed46e0251869b282a579044c080f26f0dd13723d
+
+### Block admin user by ID
+POST http://localhost:3001/api/user/98645433-9f17-42e4-9985-c566f8e8c45f/block
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+Signature: 54bbde14642bd789caf2e80bed46e0251869b282a579044c080f26f0dd13723d
+
+### Reactivate status locked/blocked admin user by ID
+POST http://localhost:3001/api/user/98645433-9f17-42e4-9985-c566f8e8c45f/reactivate
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+Signature: 54bbde14642bd789caf2e80bed46e0251869b282a579044c080f26f0dd13723d

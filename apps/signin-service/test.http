@@ -1,0 +1,16 @@
+POST http://localhost:3100/api/otp/generate
+Content-Type: application/json
+
+{
+	"email": "paul.stinchcombe@gmail.com"
+}
+
+###
+
+POST http://localhost:3100/api/otp/validate
+Content-Type: application/json
+
+{
+	"email": "paul.stinchcombe@gmail.com",
+	"otp": "310987"
+}

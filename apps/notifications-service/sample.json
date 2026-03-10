@@ -1,0 +1,23 @@
+{
+	"topic": "project-collaborator-status-changed",
+	"message": "pcs007 invited you to collaborate on a project",
+	"payload": {
+		"from": {
+			"tags": [
+				{ "tag": "SOFTWARE DEVELOPMENT", "type": "Skill" },
+				{ "tag": "TEACHING", "type": "Skill" },
+				{ "tag": "PIANO", "type": "Skill" },
+				{ "tag": "AVIATION", "type": "Interest" },
+				{ "tag": "MUSIC", "type": "Interest" },
+				{ "tag": "GUITAR", "type": "Skill" }
+			],
+			"userName": "pcs007",
+			"avatarUrl": "https://kami-storage.s3.ap-southeast-1.amazonaws.com/Project/pcs007/profilePic/man_person_people_avatar_icon_230017.webp",
+			"description": "<p>Aspiring Pilot | Aviation Enthusiast</p><p><strong>Paul</strong> is a dedicated and passionate aviation enthusiast with a dream of soaring through the skies as a professional pilot. From an early age, John has been captivated by the art of flight, spending countless hours studying aircraft, understanding aerodynamics, and immersing himself in aviation culture.</p><p>Currently pursuing [aeronautics education, flight training, or any relevant field], Paul is committed to building a strong foundation in aviation. He has completed [list certifications or milestones if applicable, e.g., ground school training, private pilot license (PPL) coursework] and actively seeks opportunities to expand his knowledge and skills.</p>"
+		},
+		"message": "Collaborate with me",
+		"projectId": 4,
+		"projectName": "Planes",
+		"walletAddress": "0x60348CbDc4afd872000e73f3a105E71f25aA8BAb"
+	}
+}

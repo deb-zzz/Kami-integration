@@ -1,0 +1,2 @@
+POST http://localhost:3000/api/0xcE228C60C6D668aFBBd536f6d729fb69089AC878/post/4/like
+Content-Type: application/json

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Progress Tracking Test</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				max-width: 600px;
+				margin: 0 auto;
+				padding: 20px;
+			}
+			.test-section {
+				margin: 20px 0;
+				padding: 15px;
+				border: 1px solid #ddd;
+				border-radius: 5px;
+			}
+			.progress {
+				margin: 10px 0;
+			}
+			.progress-bar {
+				width: 100%;
+				height: 20px;
+				background: #f0f0f0;
+				border-radius: 10px;
+				overflow: hidden;
+			}
+			.progress-fill {
+				height: 100%;
+				background: #007bff;
+				width: 0%;
+				transition: width 0.3s ease;
+			}
+			button {
+				padding: 10px 20px;
+				margin: 5px;
+				cursor: pointer;
+			}
+			.log {
+				background: #f8f9fa;
+				padding: 10px;
+				border-radius: 5px;
+				font-family: monospace;
+				font-size: 12px;
+				max-height: 200px;
+				overflow-y: auto;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Progress Tracking Test</h1>
+
+		<div class="test-section">
+			<h3>Test Upload Progress</h3>
+			<p>This will test the progress tracking system by simulating a large file upload.</p>
+			<button onclick="testProgress()">Test Progress Tracking</button>
+			<button onclick="clearLog()">Clear Log</button>
+
+			<div class="progress">
+				<div class="progress-bar">
+					<div class="progress-fill" id="progressFill"></div>
+				</div>
+				<div id="progressText">0%</div>
+			</div>
+		</div>
+
+		<div class="test-section">
+			<h3>Log</h3>
+			<div id="log" class="log"></div>
+		</div>
+
+		<script>
+			function log(message) {
+				const logDiv = document.getElementById('log');
+				const timestamp = new Date().toLocaleTimeString();
+				logDiv.innerHTML += `[${timestamp}] ${message}<br>`;
+				logDiv.scrollTop = logDiv.scrollHeight;
+			}
+
+			function clearLog() {
+				document.getElementById('log').innerHTML = '';
+			}
+
+			async function testProgress() {
+				log('Starting progress tracking test...');
+
+				// Simulate a large file upload by creating a test upload ID
+				const uploadId = `test_upload_${Date.now()}`;
+
+				// Create a test progress entry
+				try {
+					const response = await fetch('http://localhost:3001/api/upload/progress', {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({
+							uploadId: uploadId,
+							fileName: 'test-large-file.mp4',
+							totalSize: 100 * 1024 * 1024, // 100MB
+							uploadedSize: 0,
+							status: 'uploading',
+						}),
+					});
+
+					if (response.ok) {
+						log('Created test progress entry');
+						simulateProgress(uploadId);
+					} else {
+						log('Failed to create progress entry');
+					}
+				} catch (error) {
+					log(`Error: ${error.message}`);
+				}
+			}
+
+			function simulateProgress(uploadId) {
+				let uploadedSize = 0;
+				const totalSize = 100 * 1024 * 1024; // 100MB
+				const chunkSize = 5 * 1024 * 1024; // 5MB chunks
+
+				const interval = setInterval(async () => {
+					uploadedSize += chunkSize;
+					const percentage = Math.min(Math.round((uploadedSize / totalSize) * 100), 100);
+
+					// Update progress
+					try {
+						const response = await fetch('http://localhost:3001/api/upload/progress', {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json' },
+							body: JSON.stringify({
+								uploadId: uploadId,
+								uploadedSize: uploadedSize,
+								status: uploadedSize >= totalSize ? 'completed' : 'uploading',
+							}),
+						});
+
+						if (response.ok) {
+							log(`Updated progress: ${percentage}% (${formatBytes(uploadedSize)}/${formatBytes(totalSize)})`);
+							updateProgressBar(percentage);
+
+							if (uploadedSize >= totalSize) {
+								clearInterval(interval);
+								log('Upload completed!');
+							}
+						}
+					} catch (error) {
+						log(`Error updating progress: ${error.message}`);
+					}
+				}, 1000); // Update every second
+			}
+
+			function updateProgressBar(percentage) {
+				document.getElementById('progressFill').style.width = percentage + '%';
+				document.getElementById('progressText').textContent = percentage + '%';
+			}
+
+			function formatBytes(bytes) {
+				if (bytes === 0) return '0 Bytes';
+				const k = 1024;
+				const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+				const i = Math.floor(Math.log(bytes) / Math.log(k));
+				return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+			}
+
+			// Test getting progress
+			async function testGetProgress() {
+				const uploadId = prompt('Enter upload ID to check:');
+				if (!uploadId) return;
+
+				try {
+					const response = await fetch(`http://localhost:3001/api/upload/progress?uploadId=${uploadId}`);
+					const progress = await response.json();
+
+					if (response.ok) {
+						log(`Progress for ${uploadId}: ${progress.percentage}% (${progress.status})`);
+					} else {
+						log(`Error: ${progress.error}`);
+					}
+				} catch (error) {
+					log(`Error: ${error.message}`);
+				}
+			}
+
+			// Add test button for getting progress
+			document.body.innerHTML += `
+            <div class="test-section">
+                <h3>Test Get Progress</h3>
+                <button onclick="testGetProgress()">Get Progress by ID</button>
+            </div>
+        `;
+		</script>
+	</body>
+</html>

@@ -1,0 +1,61 @@
+### -----------------------------
+### CART API TESTS
+### -----------------------------
+
+### 1. Check product before adding (happy path)
+GET http://localhost:3000/api/cart/items/check?walletAddress=0x9c8D6Fd696Ba2172e9Da56B2a48A6Fe218423774&productId=76&quantity=2
+
+### 1a. Check product with invalid quantity (error)
+GET http://localhost:3000/api/cart/items/check?walletAddress=0x9c8D6Fd696Ba2172e9Da56B2a48A6Fe218423774&productId=1&quantity=0
+
+### 1b. Check product not found (error)
+GET http://localhost:3000/api/cart/items/check?walletAddress=0x9c8D6Fd696Ba2172e9Da56B2a48A6Fe218423774&productId=1&quantity=1
+
+---
+
+### 2. Create new cart item (happy path)
+POST http://localhost:3000/api/cart/items
+Content-Type: application/json
+
+{
+  "walletAddress": "0x9c8D6Fd696Ba2172e9Da56B2a48A6Fe218423774",
+  "productId": 76,
+  "quantity": 1,
+  "checkoutAction": "BuyAndTransfer"
+}
+
+### 2a. Create with invalid checkoutAction (error)
+POST http://localhost:3000/api/cart/items
+Content-Type: application/json
+
+{
+  "walletAddress": "0x9c8D6Fd696Ba2172e9Da56B2a48A6Fe218423774",
+  "productId": 76,
+  "quantity": 1,
+  "checkoutAction": "INVALID_ACTION"
+}
+
+---
+
+### 3. Get active cart items (happy path)
+GET http://localhost:3000/api/cart/items?walletAddress=0x9c8D6Fd696Ba2172e9Da56B2a48A6Fe218423774
+
+### 3a. Get without walletAddress (error)
+GET http://localhost:3000/api/cart/items
+
+---
+
+### 4. Update existing cart item (happy path)
+PUT http://localhost:3000/api/cart/items/1
+Content-Type: application/json
+
+{
+  "walletAddress": "0x9c8D6Fd696Ba2172e9Da56B2a48A6Fe218423774",
+  "quantity": 5
+}
+
+---
+
+### 5. Delete (soft remove) cart item
+DELETE http://localhost:3000/api/cart/items/1
+

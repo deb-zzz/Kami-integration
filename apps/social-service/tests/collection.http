@@ -1,0 +1,4 @@
+POST http://localhost:3001/api/0x16c607Dbe5e4959B159510C63925051e31d2E0A6/collection/2/like
+Content-Type: application/json
+
+###

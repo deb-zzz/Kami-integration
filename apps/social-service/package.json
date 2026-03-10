@@ -1,0 +1,48 @@
+{
+  "name": "kami-platform-social-service",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "dev:social-service": "next dev",
+    "build": "pnpm exec prisma generate --schema=node_modules/kami-platform-v1-schema/prisma/schema.prisma && next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "prisma": {
+    "schema": "node_modules/kami-platform-v1-schema/prisma/schema.prisma"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.16.0",
+    "axios": "^1.7.7",
+    "bluebird": "^3.7.2",
+    "ethers": "^6.13.2",
+    "ioredis": "^5.4.1",
+    "next": "14.2.13",
+    "node-fetch": "^3.3.2",
+    "prisma": "^6.16.0",
+    "prisma-redis-middleware": "^4.8.0",
+    "react": "^18",
+    "react-dom": "^18",
+    "redis": "^4.7.0",
+    "kami-platform-v1-schema": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bluebird": "^3.5.42",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.13",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "prisma"
+    ]
+  }
+}

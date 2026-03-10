@@ -1,0 +1,20 @@
+{
+  "name": "kami-platform-v1-schema",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "init_db": "tsc && node ./dist/initdb.js"
+  },
+  "keywords": [],
+  "author": "Paul Stinchcombe",
+  "license": "ISC",
+  "description": "Shared Prisma schema for KAMI platform v1",
+  "dependencies": {
+    "@prisma/client": "^6.16.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.16.0",
+    "typescript": "^5.6.2"
+  }
+}

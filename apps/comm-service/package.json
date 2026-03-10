@@ -1,0 +1,38 @@
+{
+  "name": "kami-platform-comm-service",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "dev:comm-service": "next dev --turbopack",
+    "build": "pnpm exec prisma generate --schema=node_modules/kami-platform-v1-schema/prisma/schema.prisma && next build --turbopack",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "prisma": {
+    "schema": "node_modules/kami-platform-v1-schema/prisma/schema.prisma"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.16.2",
+    "@types/nodemailer": "^7.0.4",
+    "date-fns": "^4.1.0",
+    "jose": "^5.9.6",
+    "next": "15.5.3",
+    "nodemailer": "^7.0.11",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "winston": "^3.19.0",
+    "zod": "^4.1.11",
+    "kami-platform-v1-schema": "workspace:*"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.3",
+    "prisma": "^6.16.2",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,59 @@
+{
+	"fileTypes": [
+		{
+			"key": "images",
+			"category": "Images",
+			"formats": [
+				"jpeg",
+				"jpg",
+				"png",
+				"tiff",
+				"gif",
+				"webp",
+				"bmp",
+				"svg",
+				"heif"
+			],
+			"needCoverArtwork": false
+		},
+		{
+			"key": "videos",
+			"category": "Videos",
+			"formats": ["gif", "mov", "mp4", "avi", "wmv", "mkv"],
+			"needCoverArtwork": true
+		},
+		{
+			"key": "audio",
+			"category": "Audio",
+			"formats": ["mp3", "aac", "ogg", "flac", "alac", "wav", "aiff"],
+			"needCoverArtwork": true
+		},
+		{
+			"key": "3d",
+			"category": "3D",
+			"formats": ["stl", "obj", "fbx", "3mf", "gltf", "glb"],
+			"needCoverArtwork": true
+		},
+		{
+			"key": "documents",
+			"category": "Documents",
+			"formats": [
+				"pdf",
+				"txt",
+				"doc",
+				"docx",
+				"xls",
+				"xlsx",
+				"ppt",
+				"pptx"
+			],
+			"needCoverArtwork": true
+		},
+		{
+			"key": "podcast",
+			"category": "Podcast",
+			"formats": ["mov", "mp4", "avi", "wmv", "mkv"],
+			"needCoverArtwork": true
+		}
+	]
+}

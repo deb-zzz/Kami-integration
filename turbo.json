@@ -1,0 +1,50 @@
+{
+	"$schema": "https://turbo.build/schema.json",
+	"globalDependencies": [".env", ".env.*"],
+	"globalPassThroughEnv": ["NODE_ENV", "DATABASE_URL"],
+	"tasks": {
+		"build": {
+			"dependsOn": ["^build"],
+			"outputs": ["dist/**", ".next/**", "!.next/cache/**"]
+		},
+		"compile": {
+			"dependsOn": ["^compile"],
+			"outputs": ["artifacts/**", "cache/**", "typechain-types/**"]
+		},
+		"dev": {
+			"cache": false,
+			"persistent": true
+		},
+		"dev:admin-service": { "cache": false, "persistent": true },
+		"dev:api-gateway": { "cache": false, "persistent": true },
+		"dev:edubricks-s3-media": { "cache": false, "persistent": true },
+		"dev:auth": { "cache": false, "persistent": true },
+		"dev:cart-service": { "cache": false, "persistent": true },
+		"dev:collaborate-service": { "cache": false, "persistent": true },
+		"dev:collection-service": { "cache": false, "persistent": true },
+		"dev:comm-service": { "cache": false, "persistent": true },
+		"dev:feed-service": { "cache": false, "persistent": true },
+		"dev:mailing-list-service": { "cache": false, "persistent": true },
+		"dev:notifications-service": { "cache": false, "persistent": true },
+		"dev:posts-service": { "cache": false, "persistent": true },
+		"dev:profile-service": { "cache": false, "persistent": true },
+		"dev:project-service": { "cache": false, "persistent": true },
+		"dev:signin-service": { "cache": false, "persistent": true },
+		"dev:social-service": { "cache": false, "persistent": true },
+		"dev:tag-service": { "cache": false, "persistent": true },
+		"dev:wallet-service": { "cache": false, "persistent": true },
+		"dev:web3-funding": { "cache": false, "persistent": true },
+		"dev:web3-service": { "cache": false, "persistent": true },
+		"dev:web": { "cache": false, "persistent": true },
+		"lint": {
+			"dependsOn": ["^build"]
+		},
+		"test": {
+			"dependsOn": ["^build"],
+			"outputs": ["coverage/**"]
+		},
+		"clean": {
+			"cache": false
+		}
+	}
+}

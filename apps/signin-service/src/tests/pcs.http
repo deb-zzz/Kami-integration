@@ -1,0 +1,18 @@
+# Test OTP generation and validation
+
+### Generate OTP
+POST http://localhost:3100/api/otp/generate
+Content-Type: application/json
+
+{
+	"email": "test@example.com"
+}
+
+### Validate OTP    
+POST http://localhost:3100/api/otp/validate
+Content-Type: application/json
+
+{
+	"email": "test@example.com",
+	"otp": "874917"
+}

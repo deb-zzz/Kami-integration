@@ -1,0 +1,66 @@
+GET http://localhost:3003/api/0x1A653455cF346034E6BEE40cb80cf7748876Dc7d/trending
+
+###
+
+GET http://localhost:3003/api/0xcE228C60C6D668aFBBd536f6d729fb69089AC878/favourites
+
+###
+
+GET https://api-gateway.kam.ocu-napse.com/feed-service/0xcE228C60C6D668aFBBd536f6d729fb69089AC878/favourites
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+
+###
+
+GET http://localhost:3003/api/stats
+
+###
+
+GET http://localhost:3000/api/feed/generate/
+###
+
+GET http://localhost:3002/api/0xcE228C60C6D668aFBBd536f6d729fb69089AC878/explore?search=&page=1&limit=24
+
+###
+
+GET http://localhost:3001/api/stats/
+
+###
+
+GET https://api-gateway.kami.ocu-napse.com/social-service/stats
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+
+###
+
+GET https://api-gateway.kami.ocu-napse.com/feed-service/0x16c607Dbe5e4959B159510C63925051e31d2E0A6/explore
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+
+###
+
+GET http://localhost:3002/api/cache/explore
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+
+###
+
+GET https://api-gateway.kami.ocu-napse.com/feed-service/cache/explore
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+
+###
+
+PUT http://localhost:3001/api/0x16c607Dbe5e4959B159510C63925051e31d2E0A6/spotlight
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+
+{
+    "showSpotlight": true
+}
+
+###
+
+GET http://localhost:3001/api/0x16c607Dbe5e4959B159510C63925051e31d2E0A6/spotlight
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ

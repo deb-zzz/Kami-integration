@@ -1,0 +1,31 @@
+{
+  "name": "kami-platform-web3-funding",
+  "version": "1.0.0",
+  "description": "API server for managing funding wallets with CRUD operations",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "pnpm exec prisma generate --schema=node_modules/kami-platform-v1-schema/prisma/schema.prisma && tsc",
+    "start": "node dist/server.js",
+    "dev": "tsx watch src/server.ts",
+    "dev:web3-funding": "tsx watch src/server.ts",
+    "prisma:generate": "prisma generate --schema=node_modules/kami-platform-v1-schema/prisma/schema.prisma",
+    "prisma:push": "prisma db push --schema=node_modules/kami-platform-v1-schema/prisma/schema.prisma"
+  },
+  "keywords": [],
+  "author": "Paul Stinchcombe",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^6.16.0",
+    "express": "^4.18.2",
+    "prisma": "^6.16.0",
+    "viem": "^2.21.0",
+    "kami-platform-v1-schema": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}

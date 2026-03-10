@@ -1,0 +1,19 @@
+{
+	"name": "Dreamsmith",
+	"contractAddress": "0xbe7e511ff0e2d4ecf55c493b839c0a6f62657070",
+	"tokenId": 5,
+	"tokenStandard": "ERC1155",
+	"description": "You breathe life into stories that outlive moments. From fleeting ideas to glimpses of new worlds, you craft meaning where others see chaos. Your narratives ripple outward, shaping the way people remember, remix and reimagine the creative worlds we inhabit.",
+	"htmlDescription": "<p class='p1'><span class='s1'>You breathe life into stories that outlive moments.<br /> From fleeting ideas to glimpses of new worlds,<br /> you craft meaning where others see chaos.</span></p><p class='p2'>Your narratives ripple outward,<br />shaping the way people<br /><span class='s1'>remember,<br /></span><span class='s1'>remix<br /></span><span class='s1'>and reimagine<br /> the creative worlds we inhabit.</span></p><p class='p1'>&nbsp;</p>",
+	"image": "ipfs://QmR3DMJkLWp9h23gJiNJ5j48ju7yZo45aAXEEUw6nfZbWx",
+	"attributes": [
+		{
+			"trait_type": "Archetype",
+			"value": "Dreamsmith"
+		},
+		{
+			"trait_type": "Series",
+			"value": "KAMI Genesis Sigil"
+		}
+	]
+}

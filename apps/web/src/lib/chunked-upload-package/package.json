@@ -1,0 +1,34 @@
+{
+	"name": "chunked-upload-hook",
+	"version": "1.0.0",
+	"description": "A portable React hook for chunked file uploads with progress tracking",
+	"main": "hooks/useChunkedUpload.ts",
+	"types": "hooks/useChunkedUpload.ts",
+	"scripts": {
+		"build": "echo 'No build step required - TypeScript files are ready to use'",
+		"test": "echo 'No tests included in this package'"
+	},
+	"peerDependencies": {
+		"react": ">=18.0.0",
+		"react-dom": ">=18.0.0"
+	},
+	"dependencies": {
+		"@aws-sdk/client-s3": "^3.750.0"
+	},
+	"devDependencies": {
+		"@types/react": "^18.0.0",
+		"@types/react-dom": "^18.0.0",
+		"typescript": "^5.0.0"
+	},
+	"keywords": [
+		"react",
+		"hook",
+		"upload",
+		"chunked",
+		"file",
+		"progress",
+		"typescript"
+	],
+	"author": "KAMI Platform",
+	"license": "MIT"
+}

@@ -1,0 +1,19 @@
+{
+	"name": "Worldbuilder (Staging)",
+	"contractAddress": "0x7f352f855fc2a98db1fdddbbe8e8ed2c7af81434",
+	"tokenId": 6,
+	"tokenStandard": "ERC1155",
+	"description": "You don’t just build a stage, you shape entire realms. Thoughts become landscapes, systems and stories that others navigate, inhabit, and transform. Your touch reveals unseen pathways, opening doors to experiences that grow with every mind that enters.",
+	"htmlDescription": "<p class='p1'><span class='s1'>You don&rsquo;t just build a stage,<br /></span><span class='s1'>you shape entire realms.<br /> Thoughts become<br /></span><span class='s1'>landscapes,<br /></span><span class='s1'>systems<br /></span><span class='s1'>and stories<br /> that others navigate, inhabit, and transform.</span></p><p class='p2'>Your touch reveals unseen pathways,<br />opening doors to experiences<br />that grow with every mind that enters.</p><p class='p1'>&nbsp;</p>",
+	"image": "ipfs://QmX1qnrM3NJgUxReWkADQuWsuyDXUPXmsaJoDULSJYbr1b",
+	"attributes": [
+		{
+			"trait_type": "Archetype",
+			"value": "Worldbuilder"
+		},
+		{
+			"trait_type": "Series",
+			"value": "KAMI Genesis Sigil"
+		}
+	]
+}

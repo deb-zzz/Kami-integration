@@ -1,0 +1,502 @@
+{
+	"info": {
+		"name": "KAMI Platform API v2.2",
+		"description": "Complete API collection for KAMI Platform Web3 Service with dynamic blockchain configuration and private key management. Features multi-chain support, payment token integration, gasless operations, secure database-stored private keys, NFT details retrieval, and batch checkout processing. Note: After deployment, contract owner must manually grant OWNER_ROLE to SimpleAccount for royalty and URI operations.",
+		"version": "2.2.0",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "apiKey",
+			"value": "your-api-key-here",
+			"type": "string"
+		},
+		{
+			"key": "chainId",
+			"value": "84532",
+			"type": "string",
+			"description": "Base Sepolia chain ID"
+		}
+	],
+	"item": [
+		{
+			"name": "Blockchain Operations",
+			"item": [
+				{
+					"name": "Deploy Collection",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{apiKey}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"collectionId\": 123,\n  \"ownerAddress\": \"0x1234567890123456789012345678901234567890\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/blockchain/deploy",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "blockchain", "deploy"]
+						},
+						"description": "Deploy a new NFT collection contract to the blockchain. Uses dynamic blockchain configuration from database. IMPORTANT: After deployment, manually grant OWNER_ROLE to SimpleAccount for royalty/URI operations."
+					},
+					"response": []
+				},
+				{
+					"name": "Deploy and Mint",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{apiKey}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"newCollection\": {\n    \"symbol\": \"KAMI\",\n    \"name\": \"KAMI Test Collection\",\n    \"description\": \"Test collection for KAMI platform\"\n  },\n  \"walletAddress\": \"0x1234567890123456789012345678901234567890\",\n  \"tokenId\": \"1\",\n  \"projectId\": 1,\n  \"price\": 0.5,\n  \"type\": \"Standard\",\n  \"quantity\": 1,\n  \"spotlight\": false,\n  \"audience\": \"Public\",\n  \"consumerAction\": \"Buy\",\n  \"shouldDeploy\": true,\n  \"metadata\": {\n    \"name\": \"Test NFT\",\n    \"description\": \"A test NFT\",\n    \"image\": \"https://example.com/image.png\",\n    \"attributes\": [\n      {\n        \"trait_type\": \"Color\",\n        \"value\": \"Blue\"\n      }\n    ],\n    \"properties\": {\n      \"bundle\": [],\n      \"creators\": [\n        {\n          \"address\": \"0x1234567890123456789012345678901234567890\",\n          \"name\": \"Creator Name\",\n          \"share\": 100\n        }\n      ]\n    }\n  },\n  \"royaltyData\": [\n    {\n      \"receiver\": \"0x1234567890123456789012345678901234567890\",\n      \"feeNumerator\": 1000\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/blockchain/deployAndMint",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "blockchain", "deployAndMint"]
+						},
+						"description": "Deploy a collection and mint an NFT in one operation. Uses dynamic blockchain configuration and payment tokens from database. IMPORTANT: After deployment, manually grant OWNER_ROLE to SimpleAccount for royalty/URI operations."
+					},
+					"response": []
+				},
+				{
+					"name": "Mint NFT",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{apiKey}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"voucherId\": 123,\n  \"recipientAddress\": \"0x1234567890123456789012345678901234567890\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/blockchain/mint",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "blockchain", "mint"]
+						},
+						"description": "Mint an NFT using an existing voucher. Uses dynamic blockchain configuration and payment tokens from database."
+					},
+					"response": []
+				},
+				{
+					"name": "Get NFT Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{apiKey}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/blockchain/nft?collectionId=123&tokenId=1&walletAddress=0x1234567890123456789012345678901234567890",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "blockchain", "nft"],
+							"query": [
+								{
+									"key": "collectionId",
+									"value": "123",
+									"description": "Collection ID"
+								},
+								{
+									"key": "tokenId",
+									"value": "1",
+									"description": "Token ID"
+								},
+								{
+									"key": "walletAddress",
+									"value": "0x1234567890123456789012345678901234567890",
+									"description": "Wallet address to check balance (optional)"
+								}
+							]
+						},
+						"description": "Retrieve detailed information about a specific NFT, including metadata, balance, and IPFS links. Optionally fetches balance for a specific wallet address."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Total Supply",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{apiKey}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/blockchain/getTotalSupply?chainId={{chainId}}&contractAddress=0x1234567890123456789012345678901234567890&type=ERC721AC&tokenId=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "blockchain", "getTotalSupply"],
+							"query": [
+								{
+									"key": "chainId",
+									"value": "{{chainId}}",
+									"description": "Blockchain chain ID"
+								},
+								{
+									"key": "contractAddress",
+									"value": "0x1234567890123456789012345678901234567890",
+									"description": "Contract address"
+								},
+								{
+									"key": "type",
+									"value": "ERC721AC",
+									"description": "Contract type (ERC721C, ERC721AC, ERC1155C)"
+								},
+								{
+									"key": "tokenId",
+									"value": "1",
+									"description": "Token ID (required for ERC1155C)"
+								}
+							]
+						},
+						"description": "Get total supply of a contract. Returns the maximum supply that can be minted."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Total Minted",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{apiKey}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/blockchain/getTotalMinted?chainId={{chainId}}&contractAddress=0x1234567890123456789012345678901234567890&type=ERC721AC&tokenId=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "blockchain", "getTotalMinted"],
+							"query": [
+								{
+									"key": "chainId",
+									"value": "{{chainId}}",
+									"description": "Blockchain chain ID"
+								},
+								{
+									"key": "contractAddress",
+									"value": "0x1234567890123456789012345678901234567890",
+									"description": "Contract address"
+								},
+								{
+									"key": "type",
+									"value": "ERC721AC",
+									"description": "Contract type (ERC721C, ERC721AC, ERC1155C)"
+								},
+								{
+									"key": "tokenId",
+									"value": "1",
+									"description": "Token ID (required for ERC1155C, optional for ERC721C/ERC721AC)"
+								}
+							]
+						},
+						"description": "Get total minted count of a contract using the gasless-nft-tx library's getTotalMinted method. Returns how many tokens have been minted so far."
+					},
+					"response": []
+				},
+				{
+					"name": "Set Token Price",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{apiKey}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"contractAddress\": \"0x1234567890123456789012345678901234567890\",\n  \"contractType\": \"ERC721C\",\n  \"tokenId\": 1,\n  \"price\": 0.5\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/blockchain/setTokenPrice",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "blockchain", "setTokenPrice"]
+						},
+						"description": "Set the price for a specific NFT token. Uses dynamic blockchain configuration from database."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "NFT Publishing",
+			"item": [
+				{
+					"name": "Publish NFT",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{apiKey}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"walletAddress\": \"0x1234567890123456789012345678901234567890\",\n  \"tokenId\": \"1\",\n  \"projectId\": 1,\n  \"price\": 0.5,\n  \"type\": \"Standard\",\n  \"quantity\": 1,\n  \"spotlight\": false,\n  \"audience\": \"Public\",\n  \"consumerAction\": \"Buy\",\n  \"metadata\": {\n    \"name\": \"Published NFT\",\n    \"description\": \"A published NFT\",\n    \"image\": \"https://example.com/image.png\",\n    \"attributes\": [\n      {\n        \"trait_type\": \"Rarity\",\n        \"value\": \"Common\"\n      }\n    ],\n    \"properties\": {\n      \"bundle\": [],\n      \"creators\": [\n        {\n          \"address\": \"0x1234567890123456789012345678901234567890\",\n          \"name\": \"Creator Name\",\n          \"share\": 100\n        }\n      ]\n    }\n  },\n  \"royaltyData\": [\n    {\n      \"receiver\": \"0x1234567890123456789012345678901234567890\",\n      \"feeNumerator\": 1000\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/publish",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "publish"]
+						},
+						"description": "Publish an NFT to the platform. Uses dynamic blockchain configuration and payment tokens from database."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Product Management",
+			"item": [
+				{
+					"name": "Get Product Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{apiKey}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/product/123",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "product", "123"]
+						},
+						"description": "Get details for a specific product"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Checkout",
+			"item": [
+				{
+					"name": "Process Checkout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{apiKey}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"checkoutItems\": [\n    {\n      \"collectionId\": 123,\n      \"voucherId\": 456,\n      \"tokenId\": 1,\n      \"quantity\": 1\n    },\n    {\n      \"collectionId\": 124,\n      \"assetId\": 789,\n      \"tokenId\": 2,\n      \"quantity\": 2\n    }\n  ],\n  \"walletAddress\": \"0x1234567890123456789012345678901234567890\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/checkout",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "checkout"]
+						},
+						"description": "Process batch checkout for NFT purchases. Supports multiple items in a single transaction. Can deploy collections, mint vouchers, and transfer existing assets. Uses dynamic blockchain configuration and payment tokens from database."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Database Management",
+			"item": [
+				{
+					"name": "Configure Blockchain",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{apiKey}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"chainId\": \"0xaa36a7\",\n  \"name\": \"Base Sepolia\",\n  \"rpcUrl\": \"https://sepolia.base.org\",\n  \"explorerUrl\": \"https://sepolia.basescan.org\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/blockchain",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "blockchain"]
+						},
+						"description": "Configure a new blockchain in the database. This is required before using any blockchain operations."
+					},
+					"response": []
+				},
+				{
+					"name": "Configure Payment Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{apiKey}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"blockchainId\": 1,\n  \"contractAddress\": \"0x036CbD53842c5426634e7929541eC2318f3dCF7e\",\n  \"symbol\": \"USDC\",\n  \"decimals\": 6,\n  \"name\": \"USD Coin\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/payment-token",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "payment-token"]
+						},
+						"description": "Configure a payment token for a blockchain. This is required for payment processing."
+					},
+					"response": []
+				},
+				{
+					"name": "Configure Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{apiKey}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"walletAddress\": \"0x1234567890123456789012345678901234567890\",\n  \"chainId\": \"0xaa36a7\",\n  \"privateKey\": \"encrypted_private_key_here\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/admin/account",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "admin", "account"]
+						},
+						"description": "Configure an account with encrypted private key for a specific blockchain. This is required for contract operations."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Health & Status",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/health",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "health"]
+						},
+						"description": "Check the health status of the API service"
+					},
+					"response": []
+				},
+				{
+					"name": "Service Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/status",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "status"]
+						},
+						"description": "Get the current status of all services including blockchain configuration"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Add timestamp to requests",
+					"pm.globals.set('timestamp', new Date().toISOString());",
+					"",
+					"// Log current chain ID",
+					"console.log('Using chain ID:', pm.variables.get('chainId'));"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Basic response validation",
+					"pm.test('Response time is less than 10000ms', function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(10000);",
+					"});",
+					"",
+					"pm.test('Response has status code', function () {",
+					"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 400, 401, 404, 500]);",
+					"});",
+					"",
+					"// Log response for debugging",
+					"if (pm.response.code >= 400) {",
+					"    console.log('Error response:', pm.response.text());",
+					"}"
+				]
+			}
+		}
+	]
+}

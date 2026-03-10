@@ -1,0 +1,721 @@
+name: "kami-platform"
+services:
+    platform:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-web:${GHCR_TAG:-latest}
+        restart: unless-stopped
+        expose:
+            - 3000
+        ports:
+            - 6003:3000
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+            - REACT_APP_HOST=http://localhost:6003
+            - DANGEROUSLY_DISABLE_HOST_CHECK=true
+            - API_BASE_URL=http://localhost:6004
+            - AUTH=local-dev-token
+            - NEXT_PUBLIC_AUTH=local-dev-token
+            - NEXT_PUBLIC_POSTHOG_KEY=local-posthog-key
+            - NEXT_PUBLIC_POSTHOG_HOST=http://localhost:6003
+            - NEXT_PUBLIC_UPLOAD_API_URL=http://localhost:6004
+            - SMTP_HOST=localhost
+            - SMTP_PORT=1025
+            - SMTP_USER=dev
+            - SMTP_PASS=dev
+            - TRANSAK_ENV=STAGING
+            - TRANSAK_API_KEY=local-transak-key
+            - TRANSAK_API_SECRET=local-transak-secret
+            - TRANSAK_REFERRER_DOMAIN=http://localhost:6003
+            - NEXT_PUBLIC_TRANSAK_REFERRER_DOMAIN=http://localhost:6003
+            - NEXT_PUBLIC_TRANSAK_API_KEY=local-transak-key
+            - NEXT_PUBLIC_THIRDWEB_AUTH_DOMAIN=http://localhost:6003
+            - NEXT_PUBLIC_KAMI_FEED_URL=http://localhost:6004/feed-service
+        depends_on:
+            - db
+        networks:
+            - kami-frontend-network
+        labels:
+            com.centurylinklabs.watchtower.enable: "true"
+
+    platform-admin:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-admin-ui:${GHCR_TAG:-latest}
+        restart: unless-stopped
+        expose:
+            - 3000
+        ports:
+            - 6005:3000
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+            - REACT_APP_HOST=http://localhost:6005
+            - DANGEROUSLY_DISABLE_HOST_CHECK=true
+            - NEXT_PUBLIC_API_BASE_URL=http://localhost:6004
+            - NEXT_PUBLIC_AUTH=local-dev-token
+        depends_on:
+            - db
+        networks:
+            - kami-frontend-network
+        labels:
+            com.centurylinklabs.watchtower.enable: "true"
+
+    api-gateway:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-api-gateway:${GHCR_TAG:-latest}
+        restart: unless-stopped
+        expose:
+            - 3000
+        ports:
+            - 6004:3000
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+            - PORT=3000
+            - HOST=0.0.0.0
+            - RATE_LIMIT_WINDOW_MS=1000
+            - RATE_LIMIT_MAX_REQUESTS=100
+            - ADMIN_SERVICE_URL=http://admin-service:3000/api
+            - AUTH_SERVICE_URL=http://auth-service:3000/api
+            - PROFILE_SERVICE_URL=http://profile-service:3000/api
+            - PROJECT_SERVICE_URL=http://project-service:3000/api
+            - TAG_SERVICE_URL=http://tag-service:3000/api
+            - POST_SERVICE_URL=http://post-service:3000/api
+            - FEED_SERVICE_URL=http://feed-service:3000/api
+            - SOCIAL_SERVICE_URL=http://social-service:3000/api
+            - COLLECTION_SERVICE_URL=http://collections-service:3000/api
+            - WEB3_SERVICE_URL=http://web3-service:3000/api
+            - S3MEDIA_SERVICE_URL=http://s3media-service:3000/api
+            - NOTIFICATIONS_SERVICE_URL=http://notifications-service:3000/api
+            - COLLABORATION_SERVICE_URL=http://collaboration-service:3000/api
+            - SIGNIN_SERVICE_URL=http://signin-service:3000/api
+            - IPFS_SERVICE_URL=http://ipfs-service:9876/api
+            - MAILING_LIST_SERVICE_URL=http://mailing-list-service:3000/api
+            - WALLET_SERVICE_URL=http://wallet-service:3000/api
+            - CART_SERVICE_URL=http://cart-service:3000/api
+            - REFERRAL_SERVICE_URL=http://referral-service:3000/api
+            - COMM_SERVICE_URL=http://comm-service:3000/api
+            - WEB3_FUNDING_SERVICE_URL=http://web3-funding-service:3000/api
+            - LOG_FORMAT=combined
+            - CORS_ORIGIN_DEV=http://localhost:6003,http://localhost:6005
+            - CORS_ORIGIN_PROD=http://localhost:6003,http://localhost:6005
+            - NODE_ENV=development
+            - JWT_SECRET=bW9ja2tleW1vY2trZXltb2Nra2V5bW9ja2tleQ==
+            - CHECK_SIGNATURE=false
+        depends_on:
+            - db
+        networks:
+            - kami-backend-network
+        labels:
+            com.centurylinklabs.watchtower.enable: "true"
+
+    signin-service:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-signin-service:${GHCR_TAG:-latest}
+        restart: unless-stopped
+        expose:
+            - 3000
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+            - DANGEROUSLY_DISABLE_HOST_CHECK=true
+            - REDIS_URL=redis://redis:6379/0
+            - NODE_ENV=production
+            - DATABASE_URL=postgresql://kami:local-dev-password@db:5432/kami-v1?schema=public
+            - PORT=3000
+            - ETHEREUM_SALT=0000000000000000000000000000000000000000000000000000000000000000
+            - CHAIN_ID=0x14a34
+            - SMTP_HOST=localhost
+            - SMTP_PORT=1025
+            - SMTP_USER=dev
+            - SMTP_PASS=dev
+            - DB_PATH=./data/otp.db
+            - OTP_EXPIRY_MINUTES=10
+        depends_on:
+            - db
+            - redis
+        networks:
+            - kami-backend-network
+        labels:
+            com.centurylinklabs.watchtower.enable: "true"
+
+    wallet-service:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-wallet-service:${GHCR_TAG:-latest}
+        restart: unless-stopped
+        expose:
+            - 3000
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+            - DANGEROUSLY_DISABLE_HOST_CHECK=true
+            - DATABASE_URL=postgres://kami:local-dev-password@db:5432/kami-v1
+            - RPC_URL=http://host.docker.internal:8545
+            - CHAIN_ID=0x14a34
+            - CHAIN_NAME=BASE SEPOLIA
+            - USDC_CONTRACT_ADDRESS=0x036CbD53842c5426634e7929541eC2318f3dCF7e
+            - PAYMASTER_URL=http://host.docker.internal:8080
+            - ETHEREUM_SALT=0000000000000000000000000000000000000000000000000000000000000000
+            - WEB3_SERVICE_URL=http://web3-service:3000
+        depends_on:
+            - db
+        networks:
+            - kami-backend-network
+        labels:
+            com.centurylinklabs.watchtower.enable: "true"
+
+    cart-service:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-cart-service:${GHCR_TAG:-latest}
+        restart: unless-stopped
+        expose:
+            - 3000
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+            - DANGEROUSLY_DISABLE_HOST_CHECK=true
+            - DATABASE_URL=postgres://kami:local-dev-password@pgbouncer:6432/kami-v1
+            - REDIS_URL=redis://redis:6379/0
+            - WALLET_SERVICE_URL=http://wallet-service:3000/api
+            - WEB3_SERVICE_URL=http://web3-service:3000/api
+        depends_on:
+            - db
+        networks:
+            - kami-backend-network
+        labels:
+            com.centurylinklabs.watchtower.enable: "true"
+
+    comm-service:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-comm-service:${GHCR_TAG:-latest}
+        restart: unless-stopped
+        expose:
+            - 3000
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+            - DANGEROUSLY_DISABLE_HOST_CHECK=true
+            - DATABASE_URL=postgres://kami:local-dev-password@pgbouncer:6432/kami-v1
+            - REDIS_URL=redis://redis:6379/0
+            - NODE_ENV=production
+            - SMTP_HOST=localhost
+            - SMTP_PORT=1025
+            - SMTP_USER_AUTH=dev
+            - SMTP_PASS_AUTH=dev
+            - SMTP_USER_NOTIFY=dev
+            - SMTP_PASS_NOTIFY=dev
+        depends_on:
+            - db
+        networks:
+            - kami-backend-network
+        labels:
+            com.centurylinklabs.watchtower.enable: "true"
+
+    s3media-service:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-media-service:${GHCR_TAG:-latest}
+        restart: unless-stopped
+        expose:
+            - 3000
+        ports:
+            - 6555:3000
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+            - DANGEROUSLY_DISABLE_HOST_CHECK=true
+            - REDIS_URL=redis://redis:6379/0
+            - NODE_ENV=production
+            - ACCESS_KEY=local-access-key
+            - SECRET_KEY=local-secret-key
+            - AWS_REGION=ap-southeast-1
+            - BUCKET_NAME=kami-dev-staging
+            - CDN_URL=https://d2xjosm5zwjhx3.cloudfront.net
+        networks:
+            - kami-backend-network
+            - kami-frontend-network
+        labels:
+            com.centurylinklabs.watchtower.enable: "true"
+
+    # ipfs-service:
+    #     image: paulstinchcombe/kami-platform-ipfs-service:staging
+    #     restart: unless-stopped
+    #     expose:
+    #         - 9876
+    #     environment:
+    #         - TZ='Asia/Kuala_Lumpur'
+    #         - DANGEROUSLY_DISABLE_HOST_CHECK=true
+    #         - NODE_ENV='production'
+    #         - PORT=9876
+    #         - FILEBASE_ACCESS_KEY=local-filebase-access-key
+    #         - FILEBASE_SECRET_KEY=local-filebase-secret-key
+    #         - FILEBASE_BUCKET=kami-t1
+    #     depends_on:
+    #         - db
+    #         - redis
+    #     networks:
+    #         - kami-util-network
+    #         - kami-backend-network
+    #     labels:
+    #         com.centurylinklabs.watchtower.enable: "true"
+
+    # ipfs-test:
+    #     restart: no
+    #     image: paulstinchcombe/ipfs-test:staging
+    #     depends_on:
+    #         - ipfs-service
+    #     networks:
+    #         kami-util-network:
+    #     labels:
+    #         com.centurylinklabs.watchtower.enable: "true"
+
+
+    admin-service:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-admin-service:${GHCR_TAG:-latest}
+        restart: unless-stopped
+        expose:
+            - 3000
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+            - DANGEROUSLY_DISABLE_HOST_CHECK=true
+            - DATABASE_URL=postgres://kami:local-dev-password@pgbouncer:6432/kami-v1
+            - REDIS_URL=redis://redis:6379/0
+            - WALLET_SERVICE_URL=http://wallet-service:3000/api
+        depends_on:
+            - db
+            - redis
+        networks:
+            - kami-backend-network
+        labels:
+            com.centurylinklabs.watchtower.enable: "true"
+
+    auth-service:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-auth-service:${GHCR_TAG:-latest}
+        restart: unless-stopped
+        expose:
+            - 3000
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+            - DANGEROUSLY_DISABLE_HOST_CHECK=true
+            - DATABASE_URL=postgres://kami:local-dev-password@pgbouncer:6432/kami-v1
+            - REDIS_URL=redis://redis:6379/0
+            - PROFILE_SERVICE_URL=http://profile-service:3000/api/auth
+            - JWT_SECRET=bW9ja2tleW1vY2trZXltb2Nra2V5bW9ja2tleQ==
+        depends_on:
+            - db
+            # - redis
+        networks:
+            - kami-backend-network
+        labels:
+            com.centurylinklabs.watchtower.enable: "true"
+
+    notifications-service:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-notifications-service:${GHCR_TAG:-latest}
+        restart: unless-stopped
+        expose:
+            - 3000
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+            - DANGEROUSLY_DISABLE_HOST_CHECK=true
+            - DATABASE_URL=postgres://kami:local-dev-password@pgbouncer:6432/kami-v1
+            - REDIS_URL=redis://redis:6379/0
+            - VAPID_PUBLIC_KEY=local-vapid-public-key
+            - VAPID_PRIVATE_KEY=local-vapid-private-key
+        depends_on:
+            - db
+            # - redis
+        networks:
+            - kami-backend-network
+        labels:
+            com.centurylinklabs.watchtower.enable: "true"
+
+    post-service:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-posts-service:${GHCR_TAG:-latest}
+        restart: unless-stopped
+        expose:
+            - 3000
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+            - DANGEROUSLY_DISABLE_HOST_CHECK=true
+            - DATABASE_URL=postgres://kami:local-dev-password@pgbouncer:6432/kami-v1
+            - REDIS_URL=redis://redis:6379/0
+        depends_on:
+            - db
+            # - redis
+        networks:
+            - kami-backend-network
+        labels:
+            com.centurylinklabs.watchtower.enable: "true"
+
+    web3-service:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-web3-service:${GHCR_TAG:-latest}
+        restart: unless-stopped
+        expose:
+            - 3000
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+            - DANGEROUSLY_DISABLE_HOST_CHECK=true
+            - DATABASE_URL=postgres://kami:local-dev-password@pgbouncer:6432/kami-v1
+            - REDIS_URL=redis://redis:6379/0
+            - DEFAULT_CHAIN_ID=0x14a34
+            - FILEBASE_ACCESS_KEY=local-filebase-access-key
+            - FILEBASE_SECRET_KEY=local-filebase-secret-key
+            - FILEBASE_BUCKET=kami-t1
+            - ETHEREUM_SALT=0000000000000000000000000000000000000000000000000000000000000000
+            - ENTRY_POINT_ADDRESS=0x0000000071727De22E5E9d8BAf0edAc6f37da032
+            - USE_ENTRY_POINT_FOR_EXECUTE=true
+        depends_on:
+            - db
+            # - redis
+        ports:
+            - 6002:3000
+        networks:
+            - kami-backend-network
+        labels:
+            com.centurylinklabs.watchtower.enable: "true"
+
+    feed-service:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-feed-service:${GHCR_TAG:-latest}
+        restart: unless-stopped
+        expose:
+            - 3000
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+            - DANGEROUSLY_DISABLE_HOST_CHECK=true
+            - DATABASE_URL=postgres://kami:local-dev-password@pgbouncer:6432/kami-v1
+            - REDIS_URL=redis://redis:6379/0
+            - STATS_URL=http://social-service:3000/api/stats
+            - FOLLOWING_URL=http://social-service:3000/api
+        depends_on:
+            - db
+            - post-service
+            # - redis
+        networks:
+            - kami-backend-network
+        labels:
+            com.centurylinklabs.watchtower.enable: "true"
+
+    profile-service:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-profile-service:${GHCR_TAG:-latest}
+        restart: unless-stopped
+        expose:
+            - 3000
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+            - DANGEROUSLY_DISABLE_HOST_CHECK=true
+            - DATABASE_URL=postgres://kami:local-dev-password@pgbouncer:6432/kami-v1
+            - REDIS_URL=redis://redis:6379/0
+        depends_on:
+            - db
+            # - redis
+        networks:
+            - kami-backend-network
+        labels:
+            com.centurylinklabs.watchtower.enable: "true"
+
+    project-service:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-project-service:${GHCR_TAG:-latest}
+        restart: unless-stopped
+        expose:
+            - 3000
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+            - DANGEROUSLY_DISABLE_HOST_CHECK=true
+            - DATABASE_URL=postgres://kami:local-dev-password@pgbouncer:6432/kami-v1
+            - REDIS_URL=redis://redis:6379/0
+        depends_on:
+            - db
+            # - redis
+        networks:
+            - kami-backend-network
+        labels:
+            com.centurylinklabs.watchtower.enable: "true"
+
+    collections-service:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-collections-service:${GHCR_TAG:-latest}
+        restart: unless-stopped
+        expose:
+            - 3000
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+            - DANGEROUSLY_DISABLE_HOST_CHECK=true
+            - DATABASE_URL=postgres://kami:local-dev-password@pgbouncer:6432/kami-v1
+            - REDIS_URL=redis://redis:6379/0
+            - DEFAULT_CHAIN_ID=0x14a34
+        depends_on:
+            - db
+            # - redis
+        networks:
+            - kami-backend-network
+        labels:
+            com.centurylinklabs.watchtower.enable: "true"
+
+    collaboration-service:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-collaborate-service:${GHCR_TAG:-latest}
+        restart: unless-stopped
+        expose:
+            - 3000
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+            - DANGEROUSLY_DISABLE_HOST_CHECK=true
+            - DATABASE_URL=postgres://kami:local-dev-password@pgbouncer:6432/kami-v1
+            - REDIS_URL=redis://redis:6379/0
+            - NOTIFICATIONS_SERVICE=http://notifications-service:3000/api
+            - PROFILE_SERVICE=http://profile-service:3000/api
+        depends_on:
+            - db
+            - notifications-service
+            - profile-service
+            # - redis
+        networks:
+            - kami-backend-network
+        labels:
+            com.centurylinklabs.watchtower.enable: "true"
+
+    social-service:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-social-service:${GHCR_TAG:-latest}
+        restart: unless-stopped
+        expose:
+            - 3000
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+            - DANGEROUSLY_DISABLE_HOST_CHECK=true
+            - DATABASE_URL=postgres://kami:local-dev-password@pgbouncer:6432/kami-v1
+            - REDIS_URL=redis://redis:6379/0
+        depends_on:
+            - db
+            - post-service
+            # - redis
+        networks:
+            - kami-backend-network
+
+    tag-service:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-tag-service:${GHCR_TAG:-latest}
+        restart: unless-stopped
+        expose:
+            - 3000
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+            - DANGEROUSLY_DISABLE_HOST_CHECK=true
+            - DATABASE_URL=postgres://kami:local-dev-password@pgbouncer:6432/kami-v1
+            - REDIS_URL=redis://redis:6379/0
+        depends_on:
+            - db
+            # - redisß
+        networks:
+            - kami-backend-network
+
+    mailing-list-service:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-mailing-list-service:${GHCR_TAG:-latest}
+        restart: unless-stopped
+        expose:
+            - 3000
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+            - DANGEROUSLY_DISABLE_HOST_CHECK=true
+            - DATABASE_URL=postgres://kami:local-dev-password@pgbouncer:6432/kami-v1
+            - REDIS_URL=redis://redis:6379/0
+        depends_on:
+            - db
+            - redis
+        networks:
+            - kami-backend-network
+        labels:
+            com.centurylinklabs.watchtower.enable: "true"
+
+
+    referral-service:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-referral-service:${GHCR_TAG:-latest}
+        restart: unless-stopped
+        expose:
+            - 3000
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+            - DANGEROUSLY_DISABLE_HOST_CHECK=true
+            - DATABASE_URL=postgres://kami:local-dev-password@pgbouncer:6432/kami-v1
+            - REDIS_URL=redis://redis:6379/0
+            - ENCRYPTION_KEY=1111111111111111111111111111111111111111111111111111111111111111
+            - RPC_URL=https://sepolia.base.org
+            - PORT=3000
+            - CHAIN=baseSepolia
+            - CONTRACT_ADDRESS=0x0d277ef85ca4f6716cada336ddddbfad0dff9505
+            - POINTS_PER_REFERRAL=200
+            - POINTS_ALL_USED=300
+            - POINTS_FOR_PARENTS=75
+            - POINTS_FOR_GRANDPARENTS=25
+        depends_on:
+            - db
+        networks:
+            - kami-backend-network
+        labels:
+            com.centurylinklabs.watchtower.enable: "true"
+
+
+    web3-funding-service:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-web3-funding:${GHCR_TAG:-latest}
+        restart: unless-stopped
+        expose:
+            - 3000
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+            - DANGEROUSLY_DISABLE_HOST_CHECK=true
+            - DATABASE_URL=postgres://kami:local-dev-password@pgbouncer:6432/kami-v1
+            - REDIS_URL=redis://redis:6379/0
+            - ENCRYPTION_KEY=1111111111111111111111111111111111111111111111111111111111111111
+        depends_on:
+            - db
+        networks:
+            - kami-backend-network
+        labels:
+            com.centurylinklabs.watchtower.enable: "true"
+
+
+    dbpusher:
+        image: ghcr.io/${GHCR_OWNER:-your-org}/kami-platform-v1-schema:${GHCR_SCHEMA_TAG:-latest}
+        environment:
+            - DATABASE_URL=postgres://kami:local-dev-password@pgbouncer:6432/kami-v1
+            - TZ=Asia/Kuala_Lumpur
+        depends_on:
+            - db
+        networks:
+            - kami-backend-network
+        labels:
+            com.centurylinklabs.watchtower.enable: "true"
+
+    db:
+        image: postgres:16
+        command: postgres -c 'max_connections=250'
+        restart: unless-stopped
+        expose:
+            - 5432
+        environment:
+            - POSTGRES_USER=kami
+            - POSTGRES_PASSWORD=local-dev-password
+            - POSTGRES_DB=kami-v1
+            - TZ=Asia/Kuala_Lumpur
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U kami -d kami-v1"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+        networks:
+            - kami-backend-network
+
+    pgbouncer:
+        image: edoburu/pgbouncer:latest
+        container_name: pgbouncer
+        restart: unless-stopped
+        depends_on:
+            db:
+                condition: service_healthy
+        expose:
+            - 6432
+        ports:
+            - "6001:6432"
+        environment:
+            - DB_HOST=db
+            - DB_PORT=5432
+            - DB_NAME=kami-v1
+            - DB_USER=kami
+            - DB_PASSWORD=local-dev-password
+            - LISTEN_PORT=6432
+            - POOL_MODE=transaction
+            - MAX_CLIENT_CONN=500
+            - DEFAULT_POOL_SIZE=20
+            - ADMIN_USERS=kami
+        volumes:
+            - ./pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
+            - ./userlist.txt:/etc/pgbouncer/userlist.txt
+        networks:
+            - kami-backend-network
+
+    redis:
+        image: redis:latest
+        restart: unless-stopped
+        expose:
+            - 6379
+        ports:
+            - "127.0.0.1:6379:6379"
+        volumes:
+            - redis_data:/data
+        networks:
+            - kami-backend-network
+
+
+    # upload-server:
+    #   image: your-upload-server-image
+    #   volumes:
+    #     - upload_data:/data/uploads
+
+    nginx-proxy-manager:
+        image: "jc21/nginx-proxy-manager:latest"
+        restart: unless-stopped
+        ports:
+            # These ports are in format <host-port>:<container-port>
+            # - '80:80' # Public HTTP Port
+            # - '443:443' # Public HTTPS Port
+            - "80:80" # Entry Port
+            - "443:443" # Entry Port
+            - "6080:81" # Admin Web Port
+        # Add any other Stream port you want to expose
+        # - '21:21' # FTP
+        environment:
+            - DB_MYSQL_HOST=nginx-db
+            - DB_MYSQL_PORT=3306
+            - DB_MYSQL_USER=nginx
+            - DB_MYSQL_PASSWORD=local-mysql-password
+            - DB_MYSQL_NAME=nginx
+            - TZ=Asia/Kuala_Lumpur
+            - DISABLE_IPV6=true
+        volumes:
+            - nginx-data:/data
+            - letsencrypt:/etc/letsencrypt
+            - ../kami-nginx/custom:/etc/nginx/custom:ro
+        depends_on:
+            - nginx-db
+        networks:
+            - kami-util-network
+            - kami-backend-network
+            - kami-frontend-network
+
+    nginx-db:
+        image: "jc21/mariadb-aria:latest"
+        restart: unless-stopped
+        environment:
+            - MYSQL_ROOT_PASSWORD=local-mysql-root-password
+            - MYSQL_DATABASE=nginx
+            - MYSQL_USER=nginx
+            - MYSQL_PASSWORD=local-mysql-password
+            - MARIADB_AUTO_UPGRADE=1
+            - TZ=Asia/Kuala_Lumpur
+        volumes:
+            - nginx-db:/var/lib/mysql
+        networks:
+            - kami-backend-network
+
+    kami-watchtower:
+        image: containrrr/watchtower:latest
+        restart: always
+        container_name: Kami-WatchTower
+        command: --label-enable --schedule "0 */10 * * * *" #every 10 minutes
+        networks:
+            - kami-util-network
+            - kami-backend-network
+            - kami-frontend-network
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /home/ocunapse/registryAuth.json:/config.json
+        environment:
+            - TZ=Asia/Kuala_Lumpur
+
+volumes:
+    postgres_data:
+    upload_data:
+    redis_data:
+    letsencrypt:
+    nginx-data:
+    nginx-db:
+
+networks:
+    kami-backend-network:
+        ipam:
+            config:
+                - subnet: 10.8.2.0/24
+                  gateway: 10.8.2.1
+
+    kami-frontend-network:
+        ipam:
+            config:
+                - subnet: 10.9.2.0/24
+                  gateway: 10.9.2.1
+
+    kami-util-network:
+        ipam:
+            config:
+                - subnet: 10.10.2.0/24
+                  gateway: 10.10.2.1

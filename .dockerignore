@@ -1,0 +1,11 @@
+.git
+.github
+.cursor
+**/node_modules
+**/.next
+**/dist
+**/.turbo
+**/coverage
+**/*.log
+agent-transcripts
+terminals

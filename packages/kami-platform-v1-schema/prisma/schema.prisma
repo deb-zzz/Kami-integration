@@ -1,0 +1,1637 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x", "linux-arm64-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// Early registration / waitlist signups before full platform access.
+/// Stores contact info and social handles for users who expressed interest.
+/// Requires admin approval (approved) before account activation.
+model registered {
+  email           String  @id
+  name            String?
+  description     String?
+  interests       String?
+  xHandle         String?
+  instagramHandle String?
+  youtubeHandle   String?
+  telegramHandle  String?
+  tiktokHandle    String?
+  approved        Boolean @default(false)
+  updatedAt       Int     @default(0)
+}
+
+/// API keys for external client authentication (e.g. mobile apps, integrations).
+/// Each key is tied to a client and has a secret for verification.
+/// Keys have an expiration timestamp for rotation and security.
+model apikeys {
+  key       String @id
+  client    String
+  secret    String
+  expiresAt Int
+  createdAt Int
+  updatedAt Int?
+}
+
+/// Web Push subscriptions for wallet-based push notifications.
+/// Stores the subscription payload (JSON) keyed by wallet address for delivery.
+model pushSubscriptions {
+  walletAddress String @id
+  subscription  String
+  createdAt     Int
+}
+
+/// Classification of notification: system message vs user activity.
+enum NotificationType {
+  Notification // System/administrative messages
+  Activity // User activity (like, follow, etc.)
+}
+
+/// In-app notifications for user activity (likes, follows, etc.) and system messages.
+/// Linked to an entity (post, product, etc.) via entityId/entityType/entitySubType.
+/// readAt tracks when the user acknowledged the notification.
+model notifications {
+  id               Int                        @id @default(autoincrement())
+  walletAddress    String
+  message          String
+  createdAt        Int
+  readAt           Int?
+  entityId         String?
+  entityType       NotificationEntityType?
+  entitySubType    NotificationEntitySubType?
+  notificationType NotificationType           @default(Notification)
+  profile          user                       @relation("Notifications", fields: [walletAddress], references: [walletAddress])
+}
+
+// model administrators {
+//   email     String  @id
+//   password  String
+//   name      String?
+//   createdAt Int
+//   updatedAt Int?
+// }
+
+/// Whitelist for early access, gated features, or KYC.
+/// Users can be whitelisted by wallet, email, or phone number.
+/// Used for private products, quest eligibility, etc.
+model whitelist {
+  id            Int     @id @default(autoincrement())
+  walletAddress String? @unique
+  email         String? @unique
+  phoneNumber   String? @unique
+  createdAt     Int
+}
+
+/// Investor registry for fundraising or accreditation tracking.
+/// Links email to wallet and optional investment amount (string for precision).
+model investor {
+  emailAddress     String  @id
+  walletAddress    String
+  investmentAmount String?
+  createdAt        Int
+  updatedAt        Int
+}
+
+/// Domains blocked from quest / referral link validation.
+/// Prevents abuse via untrusted or malicious referral domains.
+model quest_blacklisted_domains {
+  id        Int    @id @default(autoincrement())
+  domain    String @unique
+  createdAt Int
+}
+
+/// Quest analytics
+model QuestAnalytics {
+  id                   Int      @id @default(autoincrement())
+  email                String?
+  code                 String   @unique
+  lastSectionCompleted Int
+  createdAt            Int
+  updatedAt            Int?
+  account              account? @relation(fields: [email], references: [email])
+
+  @@map("quest_analytics")
+}
+
+/// Platform fee types - each maps to a row in charges table for fee config.
+enum ChargeType {
+  Publish
+  StorageFree
+  StorageCost
+  Buy
+  Mint
+  Rent
+  Tip
+  Transaction
+  Subscription
+  Patronage
+  TransferOut
+  TransferIn
+  InAppRoyalties
+  OutsideRoyalties
+}
+
+/// Platform fee configuration per charge type (Publish, Buy, Mint, etc.).
+/// Each type has optional fixedAmount and/or percentage for fee calculation.
+model charges {
+  type        ChargeType @id
+  fixedAmount Decimal    @default(0)
+  percentage  Decimal    @default(0)
+  createdAt   Int
+  updatedAt   Int
+}
+
+/// Content categories for projects (e.g. Art, Music, Gaming).
+/// Used to organize and filter projects in discovery.
+model categories {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   Int
+  updatedAt   Int?
+  project     project[]
+}
+
+model creatorPortfolios {
+  id               Int     @id @default(autoincrement())
+  walletAddress    String
+  portfolioUrl     String?
+  checkedAt        Int?
+  checkedByAdminId String?
+  approved         Boolean @default(false)
+  rejectedReason   String?
+  createdAt        Int
+  updatedAt        Int?
+
+  user           user           @relation(fields: [walletAddress], references: [walletAddress])
+  checkedByAdmin administrator? @relation(fields: [checkedByAdminId], references: [id])
+}
+
+/// Creator Type
+/// Tracks the type of a creator's account
+enum CreatorType {
+  Individual
+  Organization
+}
+
+/// Creator Status
+/// Tracks the status of a creator's account
+enum CreatorStatus {
+  None
+  PendingApproval
+  Approved
+  Rejected
+  Suspended
+}
+
+/// User Type
+/// Tracks the type of a user's account
+enum UserType {
+  Individual
+  Curator
+  Brand
+  Agency
+  Other
+}
+
+/// Core user profile, keyed by wallet address.
+/// Stores display name, bio, social links, NFT/TBA addresses, and preferences.
+/// Central hub for social graph (follows, likes, tips), assets, projects, cart, orders.
+model user {
+  walletAddress String  @id
+  userName      String  @unique
+  tagLine       String?
+  description   String? @db.Text
+  firstName     String?
+  lastName      String?
+  avatarUrl     String?
+  bannerUrl     String?
+  idNumber      String?
+  createdAt     Int
+  updatedAt     Int?
+
+  nftAddresses String?
+  nftTokenId   Int?
+  tbaAddresses String?
+
+  fbUrl        String?
+  instagramUrl String?
+  xUrl         String?
+  linkedInUrl  String?
+  farcasterId  String?
+  youtubeUrl   String?
+  telegramUrl  String?
+
+  todaysFilm     String?
+  todaysMusic    String?
+  todaysGame     String?
+  todaysFood     String?
+  todaysBeverage String?
+  todaysArt      String?
+
+  showSpotlight Boolean @default(false)
+
+  sigilTokenId   Int?
+  referralPoints Int  @default(0)
+
+  pinnedPostId Int?
+  pinnedPost   post? @relation("pinnedPost", fields: [pinnedPostId], references: [id])
+
+  userType UserType @default(Individual)
+
+  creatorStatus                 CreatorStatus @default(None)
+  creatorType                   CreatorType   @default(Individual)
+  creatorValidatedByAdminId     String?
+  creatorValidatedAt            Int?
+  creatorValidatedReason        String?
+  creatorStatusUpdatedAt        Int?
+  creatorStatusUpdatedByAdminId String?
+  creatorUpdateReason           String?
+
+  assets                      asset[]
+  project                     project[]            @relation("Owner")
+  logs                        logs[]               @relation("Primary")
+  relatedLogs                 logs[]               @relation("Secondary")
+  likedBy                     like[]               @relation("likedBy")
+  likes                       like[]               @relation("likes")
+  follows                     follow[]             @relation("followedBy")
+  followedBy                  follow[]             @relation("following")
+  tippedBy                    tip[]                @relation("tippedBy")
+  tipped                      tip[]                @relation("tipped")
+  playlist                    playlist[]
+  subscriptions               subscription[]       @relation("subscriber")
+  referral                    referral[]
+  affiliate                   affiliate[]
+  cartItems                   cartItems[]
+  vouchers                    voucher[]
+  postsCreated                post[]               @relation("postCreatedBy")
+  postsReposted               post[]               @relation("postPostedBy")
+  comments                    comment[]            @relation("comments")
+  bookmarks                   post[]               @relation("bookmarked")
+  tags                        tag[]
+  product                     product[]
+  ownedSubscriptions          subscription[]       @relation("subscriptionOwner")
+  collections                 collection[]         @relation("collectionOwner")
+  postsShareed                post[]               @relation("postsShared")
+  collectionsShared           collection[]         @relation("collectionsShared")
+  productsShared              product[]            @relation("productsShared")
+  assetsShared                asset[]              @relation("assetsShared")
+  collectionFollower          collection[]         @relation("collectionFollowers")
+  collaborations              collaborators[]
+  notifications               notifications[]      @relation("Notifications")
+  buyerOrders                 order[]              @relation("buyerOrders")
+  sellerOrders                order[]              @relation("sellerOrders")
+  checkouts                   checkout[]
+  referralCodes               referralCode[]
+  referralLinks               referralLinks[]
+  onboardedReferralCode       String?
+  collection                  collection?          @relation(fields: [collectionCollectionId], references: [collectionId])
+  collectionCollectionId      Int?
+  authoredCollections         dynamic_collection[] @relation("DynamicCollectionAuthor")
+  creatorPortfolios           creatorPortfolios[]
+  creatorValidatedByAdmin     administrator?       @relation("creatorValidatedByAdmin", fields: [creatorValidatedByAdminId], references: [id])
+  creatorStatusUpdatedByAdmin administrator?       @relation("creatorStatusUpdatedByAdmin", fields: [creatorStatusUpdatedByAdminId], references: [id])
+}
+
+/// Project lifecycle: Create → Monitize → Bundle → Publish.
+enum ProjectStatus {
+  Create
+  Monitize
+  Bundle
+  Publish
+}
+
+/// Creator project/studio - the top-level container for a creator's work.
+/// Progresses through Create → Monitize → Bundle → Publish.
+/// Holds assets, vouchers, products, and optionally a collection contract.
+model project {
+  id                Int             @id @default(autoincrement())
+  walletAddress     String
+  name              String
+  description       String?
+  mediaUrl          String?
+  whiteboardUrl     String?
+  status            ProjectStatus   @default(Create)
+  categoryId        Int?
+  royaltyPercentage Float?
+  draft             Json?
+  createdAt         Int
+  updatedAt         Int?
+  user              user            @relation("Owner", fields: [walletAddress], references: [walletAddress])
+  assets            asset[]
+  voucher           voucher[]
+  attachment        attachment[]
+  product           product[]
+  collection        collection?
+  category          categories?     @relation(fields: [categoryId], references: [id])
+  collaborators     collaborators[]
+  publishCharges    publishCharge[]
+
+  @@unique([walletAddress, name])
+}
+
+/// Collaborator invite/participation state for project collaborators.
+enum CollaboratorStatus {
+  None
+  Invited
+  Accepted
+  Rejected
+  Removed
+  Withdrawn
+}
+
+/// Monetization offer state for collaborator revenue share (primary/secondary).
+enum MonitizeStatus {
+  None
+  Offered
+  Accepted
+  Rejected
+  Withdrawn
+}
+
+/// Project collaborators with revenue share (primary/secondary) and monetization state.
+/// Tracks invite/accept workflow and write access for shared editing.
+model collaborators {
+  id                Int                @id @default(autoincrement())
+  projectId         Int
+  userWalletAddress String
+  role              String?
+  status            CollaboratorStatus @default(None)
+  invitedAt         Int?
+  respondedAt       Int?
+  acknowledgedAt    Int?
+  primaryShare      Float              @default(0)
+  secondaryShare    Float              @default(0)
+  primaryStatus     MonitizeStatus     @default(None)
+  secondaryStatus   MonitizeStatus     @default(None)
+  writeAccess       Boolean            @default(false)
+  project           project            @relation(fields: [projectId], references: [id])
+  userProfile       user               @relation(fields: [userWalletAddress], references: [walletAddress])
+
+  @@unique([projectId, userWalletAddress])
+}
+
+/// On-chain contract/token standard (ERC721 variants, ERC1155, ERC20).
+enum ContractType {
+  ERC721AC
+  ERC721C
+  ERC1155C
+  ERC20
+}
+
+/// Stored encrypted private keys for a wallet (e.g. for gas sponsorship, quest wallets).
+/// Used for programmatic signing when the platform needs to act on behalf of a wallet.
+model pks {
+  walletAddress String  @id
+  key           String
+  email         String?
+  phoneNumber   String?
+  createdAt     Int
+  updatedAt     Int?
+}
+
+/// On-chain NFT asset - a specific token (contractAddress + tokenId) on a chain.
+/// Can be linked to a project, product, or collection. Supports pricing, subscription, rental.
+/// audience/consumerAction/spotlight control visibility and purchase flow.
+model asset {
+  id                     Int                       @id @default(autoincrement())
+  walletAddress          String
+  chainId                String?
+  contractAddress        String
+  tokenId                String
+  metadata               Json?
+  metadataURI            String?
+  mediaUrl               String?
+  animationUrl           String?
+  availableQuantity      Int                       @default(1)
+  projectId              Int?
+  productId              Int?
+  collectionId           Int?
+  tbaAddress             String?
+  thumbnailUrl           String?
+  contractType           ContractType              @default(ERC721C)
+  consumerAction         ConsumerAction?
+  audience               ProductAudience?
+  spotlight              Boolean                   @default(false)
+  prohibitReason         ProhibitReason?
+  canSubscribe           Boolean                   @default(false)
+  subscriptionValue      Decimal?
+  likedByMe              Boolean                   @default(false)
+  price                  Decimal?
+  currencySymbol         String?
+  currency               currency?                 @relation(fields: [currencySymbol], references: [symbol])
+  createdAt              Int
+  tags                   tag[]
+  user                   user                      @relation(fields: [walletAddress], references: [walletAddress])
+  project                project?                  @relation(fields: [projectId], references: [id])
+  product                product?                  @relation(fields: [productId], references: [id])
+  collection             collection?               @relation(fields: [collectionId], references: [collectionId])
+  dynamicCollectionItems dynamic_collection_item[]
+  likes                  like[]
+  shares                 user[]                    @relation("assetsShared")
+  postContent            postContent[]
+
+  @@unique([walletAddress, contractAddress, tokenId, chainId])
+}
+
+/// Pre-mint voucher representing a claimable or buyable NFT.
+/// Acts as a template/preview before the actual token is minted.
+/// Can be linked to project, product, or collection. Supports ERC721C/721AC/1155C.
+model voucher {
+  id                     Int                       @id @default(autoincrement())
+  walletAddress          String
+  contractAddress        String?
+  tokenId                String
+  mediaUrl               String?
+  animationUrl           String?
+  metadata               Json
+  projectId              Int?
+  productId              Int?                      @unique
+  collectionId           Int?
+  contractType           ContractType              @default(ERC721C)
+  maxQuantity            Int?
+  createdAt              Int
+  tags                   tag[]
+  user                   user                      @relation(fields: [walletAddress], references: [walletAddress])
+  project                project?                  @relation(fields: [projectId], references: [id])
+  product                product?                  @relation(fields: [productId], references: [id])
+  collection             collection?               @relation(fields: [collectionId], references: [collectionId])
+  trending               trending?
+  dynamicCollectionItems dynamic_collection_item[]
+}
+
+/// Product NFT type: Standard (ERC721C), Claimable (ERC721AC), or Series (ERC1155C).
+enum ProductType {
+  Standard // ERC721C
+  Claimable // ERC721AC
+  Series // ERC1155C
+}
+
+/// Product visibility: Public, Private, Whitelist, or admin-restricted (PublicBan, Prohibit).
+enum ProductAudience {
+  Public
+  Private
+  Whitelist
+  PublicBan // Admin - Ugly, prevent from Explore
+  Prohibit // Admin - NSFW/Infringement, user cannot unhide
+}
+
+/// Primary action for purchasing/accessing a product: Buy, Subscribe, Rent, Claim, or None.
+enum ConsumerAction {
+  Buy
+  Subscribe
+  Rent
+  Claim
+  None
+}
+
+/// Admin prohibition reason (NSFW or infringement). User cannot unhide.
+enum ProhibitReason {
+  NSFW
+  INFRINGEMENT
+}
+
+/// Sellable digital product - can be Standard (ERC721C), Claimable (ERC721AC), or Series (ERC1155C).
+/// Defines price, quantity, audience (Public/Private/Whitelist), consumer action (Buy/Subscribe/Rent/Claim).
+/// Central entity for cart, orders, subscriptions, and affiliate rewards.
+model product {
+  id                 Int             @id @default(autoincrement())
+  name               String
+  description        String?
+  type               ProductType     @default(Standard)
+  price              Decimal?
+  currencySymbol     String?         @map("currency")
+  availableQuantity  Int             @default(1)
+  maxQuantity        Int?
+  ownerWalletAddress String
+  canSubscribe       Boolean         @default(false)
+  subscriptionValue  Decimal?
+  forSale            Boolean         @default(true)
+  audience           ProductAudience @default(Public)
+  consumerAction     ConsumerAction  @default(Buy)
+  whitelist          Json?
+  spotlight          Boolean         @default(false)
+  projectId          Int
+  collectionId       Int?
+  createdAt          Int
+  prohibitReason     ProhibitReason?
+  metadata           Json?
+
+  owner                  user                      @relation(fields: [ownerWalletAddress], references: [walletAddress])
+  currency               currency?                 @relation(fields: [currencySymbol], references: [symbol])
+  tags                   tag[]
+  likes                  like[]
+  follows                follow[]
+  asset                  asset[]
+  voucher                voucher?
+  tip                    tip[]
+  affiliate              affiliate[]
+  cartItems              cartItems[]
+  subscribers            subscription[]
+  project                project                   @relation(fields: [projectId], references: [id])
+  shares                 user[]                    @relation("productsShared")
+  collection             collection?               @relation(fields: [collectionId], references: [collectionId])
+  bundle                 attachment[]
+  postContent            postContent[]
+  trending               trending?
+  orderItem              orderItem[]
+  playlistItems          playlistItem[]
+  dynamicCollectionItems dynamic_collection_item[]
+}
+
+/// On-chain collection contract - one per project. Holds metadata and contractAddress.
+/// Contains products, assets, vouchers. Users can follow and share collections.
+model collection {
+  collectionId       Int          @id @default(autoincrement())
+  projectId          Int          @unique
+  name               String
+  symbol             String
+  description        String?
+  avatarUrl          String?
+  bannerUrl          String?
+  chainId            String
+  contractAddress    String?      @unique
+  contractType       ContractType @default(ERC721C)
+  ownerWalletAddress String
+  isVisible          Boolean      @default(true)
+  createdAt          Int
+
+  owner       user          @relation("collectionOwner", fields: [ownerWalletAddress], references: [walletAddress])
+  products    product[]
+  likes       like[]
+  followers   user[]        @relation("collectionFollowers")
+  shares      user[]        @relation("collectionsShared")
+  vouchers    voucher[]
+  asset       asset[]
+  attachment  attachment[]
+  postContent postContent[]
+  project     project       @relation(fields: [projectId], references: [id])
+  trending    trending?
+  user        user[]
+}
+
+/// Dynamic collection type: on-chain collection variants or user Playlist.
+enum CollectionType {
+  KAMI721ACCollection // Multiple ERC721AC tokens (Products/Assets)
+  KAMI721CCollection // Proxy to collection (single contract address/voucher, multiple token ids)
+  MultiNFTCollection // Collection with KAMI721C (Voucher/Asset) and KAMI721AC (Product/Asset) tokens
+  Playlist // A Playlist containing vouchers, assets, products (KAMI721AC), etc.
+}
+
+/// Off-chain, user-curated collection (playlist, showcase, etc.).
+/// Can hold vouchers, assets, and products via dynamic_collection_item.
+/// Supports trending score and featured flag for discovery.
+model dynamic_collection {
+  id                  String         @id @default(uuid())
+  type                CollectionType @default(Playlist)
+  authorWalletAddress String         @map("author_wallet_address")
+  ownerWalletAddress  String?        @map("owner_wallet_address")
+  name                String?
+  description         String?
+  imageUrl            String?        @map("image_url")
+  bannerUrl           String?        @map("banner_url")
+  featured            Boolean        @default(false)
+  trendingScore       Float          @default(0) @map("trending_score")
+  createdAt           Int            @map("created_at")
+  updatedAt           Int?           @map("updated_at")
+
+  // Relations
+  author user @relation("DynamicCollectionAuthor", fields: [authorWalletAddress], references: [walletAddress])
+
+  // The Explicit Join Table
+  items dynamic_collection_item[]
+
+  @@map("dynamic_collections")
+}
+
+/// Join table linking dynamic_collection to items. Each slot holds one of: voucher, asset, or product.
+/// Order field controls display order within the collection.
+model dynamic_collection_item {
+  id                  Int    @id @default(autoincrement())
+  dynamicCollectionId String @map("dynamic_collection_id")
+
+  // IDs for the different item types (all optional)
+  voucherId Int? @map("voucher_id")
+  assetId   Int? @map("asset_id")
+  productId Int? @map("product_id")
+
+  // Sort order within the collection
+  order     Int @default(0)
+  createdAt Int @map("created_at")
+
+  // Relations
+  dynamicCollection dynamic_collection @relation(fields: [dynamicCollectionId], references: [id], onDelete: Cascade)
+  voucher           voucher?           @relation(fields: [voucherId], references: [id], onDelete: SetNull)
+  asset             asset?             @relation(fields: [assetId], references: [id], onDelete: SetNull)
+  product           product?           @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([dynamicCollectionId])
+  @@map("dynamic_collection_items")
+}
+
+/// Supported MIME types for attachments (images, video, audio, document).
+enum Mimetype {
+  image_jpg
+  image_jpeg
+  image_png
+  image_gif
+  image_webp
+  image_svg
+  video_mp4
+  video_mpeg
+  video_webm
+  audio_mp3
+  audio_mpeg
+  audio_wav
+  audio_ogg
+  document_pdf
+}
+
+/// Media attachments for projects, products, or collections.
+/// Supports images, video, audio, and PDF. Order field for display sequencing.
+model attachment {
+  id               Int         @id @default(autoincrement())
+  order            Int
+  url              String
+  localUrl         String?
+  thumbnailUrl     String?
+  name             String?
+  description      String?
+  ownerDescription String?
+  category         String?
+  coverUrl         String?
+  type             Mimetype
+  projectId        Int?
+  productId        Int?
+  collectionId     Int?
+  project          project?    @relation(fields: [projectId], references: [id])
+  product          product?    @relation(fields: [productId], references: [id])
+  collection       collection? @relation(fields: [collectionId], references: [collectionId])
+
+  @@unique([productId, order])
+}
+
+/// Links a post to the content it references (collection, product, or asset).
+/// A post can have multiple postContent entries (e.g. multi-item repost).
+model postContent {
+  id           Int        @id @default(autoincrement())
+  collectionId Int
+  productId    Int?
+  assetId      Int?
+  collection   collection @relation(fields: [collectionId], references: [collectionId])
+  product      product?   @relation(fields: [productId], references: [id])
+  asset        asset?     @relation(fields: [assetId], references: [id])
+  post         post[]
+}
+
+/// Post visibility: Draft (unpublished) or Published.
+enum PostStatus {
+  Draft
+  Published
+}
+
+/// Social post - can be original (createdBy = postedBy) or a repost.
+/// References content via postContent. Supports comments, likes, shares, bookmarks.
+model post {
+  id               Int           @id @default(autoincrement())
+  parentPostId     Int?
+  createdByAddress String
+  createdAt        Int
+  createdBy        user          @relation("postCreatedBy", fields: [createdByAddress], references: [walletAddress])
+  postedByAddress  String
+  postedAt         Int
+  views            Int           @default(0)
+  caption          String?
+  status           PostStatus    @default(Published)
+  postedBy         user          @relation("postPostedBy", fields: [postedByAddress], references: [walletAddress])
+  content          postContent[]
+  comments         comment[]     @relation("comments")
+  likes            like[]
+  sharedBy         user[]        @relation("postsShared")
+  savedBy          user[]        @relation("bookmarked")
+  affiliate        affiliate[]
+  trending         trending?
+  parentPost       post?         @relation("childPosts", fields: [parentPostId], references: [id])
+  childPosts       post[]        @relation("childPosts")
+  user             user[]        @relation("pinnedPost")
+}
+
+/// Tag category: Skill, Interest, Asset, or Other.
+enum TagTypes {
+  Skill
+  Interest
+  Asset
+  Other
+}
+
+/// Tags for categorization - can be Skill, Interest, Asset, or Other.
+/// Used to tag assets, vouchers, products, and users for discovery.
+model tag {
+  id        Int       @id @default(autoincrement())
+  type      TagTypes
+  tag       String
+  createdAt Int
+  assets    asset[]
+  vouchers  voucher[]
+  users     user[]
+  products  product[]
+
+  @@unique([type, tag])
+}
+
+/// Polymorphic entity type for likes, follows, tips, and activity logs.
+enum EntityType {
+  Asset
+  Project
+  User
+  Post
+  Repost
+  Collection
+  Comment
+  ReplyToComment
+  Product
+  Playlist
+  Voucher
+  Subscription
+  Transaction
+  Referral
+  Affiliate
+  Like
+  Follow
+  Tip
+  InviteCollaborator
+  Collaborate
+  QueryCollaboratorMonitization
+  Tag
+}
+
+/// Entity type referenced in a notification (project, user, post, etc.).
+enum NotificationEntityType {
+  Project
+  User
+  Post
+  Collection
+  Product
+  Playlist
+  Collaborate
+  Asset
+  Transfer
+}
+
+/// Action/subtype that triggered the notification (Created, Liked, Purchased, etc.).
+enum NotificationEntitySubType {
+  Created
+  Updated
+  Deleted
+  Minted
+  Burned
+  Transferred
+  CartCheckout
+  Purchased
+  Subscribed
+  Unsubscribed
+  Liked
+  Unliked
+  Followed
+  Unfollowed
+  Invited
+  Accepted
+  Rejected
+  Removed
+  Withdrawn
+  Replied
+  Shared
+  Commented
+  Posted
+  Reposted
+  AddedTo
+  RemovedFrom
+  Published
+  SetPrice
+  SetQuantity
+  SetAudience
+  SetConsumerAction
+  SetRoyaltyPercentage
+  SetRoyaltyRecipient
+  SetTransferRecipient
+  SetSpotlight
+  UnsetSpotlight
+  AddedToCart
+  RemovedFromCart
+  CheckedOut
+  Rented
+  Returned
+  Claimed
+  Redeemed
+  Expired
+  Refunded
+  Cancelled
+  Completed
+  Failed
+  Succeeded
+  Pending
+  Confirmed
+  Settled
+  Tipped
+  Tagged
+  RemovedTag
+  StoppedMinting
+  StartedMinting
+}
+
+/// Comment on a post. Supports nested replies via replyToCommentId.
+model comment {
+  id               Int       @id @default(autoincrement())
+  postId           Int
+  replyToCommentId Int?
+  createdByAddress String
+  createdAt        Int
+  comment          String
+  likes            like[]
+  createdByUser    user      @relation("comments", fields: [createdByAddress], references: [walletAddress])
+  post             post      @relation("comments", fields: [postId], references: [id])
+  replyToComment   comment?  @relation("replyToComment", fields: [replyToCommentId], references: [id])
+  replies          comment[] @relation("replyToComment")
+}
+
+/// Like on a post, product, asset, collection, or comment.
+/// Polymorphic: entityType + postId/productId/assetId/collectionCollectionId/commentId.
+model like {
+  id                     Int         @id @default(autoincrement())
+  fromWalletAddress      String
+  toWalletAddress        String
+  entityType             EntityType
+  postId                 Int?
+  productId              Int?
+  assetId                Int?
+  createdAt              Int
+  fromUser               user        @relation("likedBy", fields: [fromWalletAddress], references: [walletAddress])
+  toUser                 user?       @relation("likes", fields: [toWalletAddress], references: [walletAddress])
+  post                   post?       @relation(fields: [postId], references: [id])
+  product                product?    @relation(fields: [productId], references: [id])
+  collection             collection? @relation(fields: [collectionCollectionId], references: [collectionId])
+  collectionCollectionId Int?
+  comment                comment?    @relation(fields: [commentId], references: [id])
+  commentId              Int?
+  asset                  asset?      @relation(fields: [assetId], references: [id])
+}
+
+/// Follow relationship - user can follow another user or a product.
+/// entityType distinguishes User vs Product follows.
+model follow {
+  id                Int        @id @default(autoincrement())
+  fromWalletAddress String
+  toWalletAddress   String
+  entityType        EntityType
+  productId         Int?
+  createdAt         Int
+  fromUser          user       @relation("followedBy", fields: [fromWalletAddress], references: [walletAddress])
+  toUser            user       @relation("following", fields: [toWalletAddress], references: [walletAddress])
+  product           product?   @relation(fields: [productId], references: [id])
+
+  @@unique([fromWalletAddress, toWalletAddress, entityType])
+}
+
+/// Tip (payment) from one user to another, optionally tied to a product.
+model tip {
+  id                Int        @id @default(autoincrement())
+  fromWalletAddress String
+  toWalletAddress   String
+  entityType        EntityType
+  productId         Int?
+  value             Decimal    @default(0)
+  createdAt         Int
+  fromUser          user       @relation("tippedBy", fields: [fromWalletAddress], references: [walletAddress])
+  toUser            user       @relation("tipped", fields: [toWalletAddress], references: [walletAddress])
+  product           product?   @relation(fields: [productId], references: [id])
+}
+
+model subscription {
+  id                      Int      @id @default(autoincrement())
+  ownerWalletAddress      String
+  productId               Int?
+  subscriberWalletAddress String
+  createdAt               Int
+  owner                   user     @relation("subscriptionOwner", fields: [ownerWalletAddress], references: [walletAddress])
+  subscriber              user     @relation("subscriber", fields: [subscriberWalletAddress], references: [walletAddress])
+  product                 product? @relation(fields: [productId], references: [id])
+}
+
+/// User-curated playlist of products. Used for discovery and cart (playlist buy).
+model playlist {
+  id            Int            @id @default(autoincrement())
+  walletAddress String
+  name          String
+  createdAt     Int
+  user          user           @relation(fields: [walletAddress], references: [walletAddress])
+  playlistItems playlistItem[]
+  logs          logs[]
+  affiliate     affiliate[]
+  cartItems     cartItems[]
+}
+
+/// Item in a playlist - links product to playlist with order for sequencing.
+model playlistItem {
+  id         Int      @id @default(autoincrement())
+  playlistId Int
+  productId  Int
+  order      Int
+  createdAt  Int
+  playlist   playlist @relation(fields: [playlistId], references: [id])
+  product    product  @relation(fields: [productId], references: [id])
+}
+
+/// Per-chain platform configuration: contract addresses, funding wallet, deployer.
+/// Stores sensitive keys for platform operations (funding, gas sponsorship).
+model platform {
+  chainId                         String @id
+  simpleAccountAddress            String
+  contractDeployerAddress         String
+  platformFundingWalletAddress    String
+  platformFundingWalletPrivateKey String
+  platformAddress                 String
+  kamiNFTCoreLibraryAddress       String
+  kamiPlatformLibraryAddress      String
+  kamiRoyaltyLibraryAddress       String
+  kamiRentalLibraryAddress        String
+  kamiTransferLibraryAddress      String
+  createdAt                       Int    @default(dbgenerated("extract(epoch from now())::int"))
+  updatedAt                       Int    @default(dbgenerated("extract(epoch from now())::int"))
+}
+
+/// Supported blockchain networks (chainId, name, RPC). Links to payment tokens and transactions.
+model blockchain {
+  chainId        String          @id
+  name           String
+  logoUrl        String?
+  rpcUrl         String
+  createdAt      Int             @default(dbgenerated("extract(epoch from now())::int"))
+  updatedAt      Int             @default(dbgenerated("extract(epoch from now())::int"))
+  paymentTokens  payment_token[]
+  transaction    transaction[]
+  fundingWallets fundingWallet[]
+}
+
+/// Payment token (e.g. ETH, USDC) on a chain. Links to blockchain. Used for pricing/checkout.
+model payment_token {
+  id              Int        @id @default(autoincrement())
+  chainId         String
+  contractAddress String
+  name            String
+  symbol          String
+  decimals        Int
+  logoUrl         String?
+  createdAt       Int        @default(dbgenerated("extract(epoch from now())::int"))
+  updatedAt       Int        @default(dbgenerated("extract(epoch from now())::int"))
+  blockchain      blockchain @relation(fields: [chainId], references: [chainId])
+}
+
+/// Funding wallet purpose: Quest, GasSponsor, Reward, or Other.
+enum FundingWalletType {
+  Quest
+  GasSponsor
+  Reward
+  Other
+}
+
+/// Funding wallets for quests, gas sponsorship, rewards. Per-chain, per-type.
+model fundingWallet {
+  id            Int               @id @default(autoincrement())
+  type          FundingWalletType @default(Quest)
+  chainId       String
+  walletAddress String
+  name          String            @unique
+  description   String?
+  createdAt     Int               @default(dbgenerated("extract(epoch from now())::int"))
+  updatedAt     Int               @default(dbgenerated("extract(epoch from now())::int"))
+  isActive      Boolean           @default(true)
+  blockchain    blockchain        @relation(fields: [chainId], references: [chainId])
+
+  @@unique([chainId, walletAddress, type])
+}
+
+/// On-chain transaction types (deploy, mint, burn, transfer, sell, rent, etc.).
+enum Web3TransactionType {
+  Deploy721C
+  Deploy721AC
+  Deploy1155C
+  Mint721C
+  Mint721AC
+  Mint1155C
+  Burn721C
+  Burn721AC
+  Burn1155C
+  Transfer
+  Sell
+  Rent
+  EndRental
+  ExtendRental
+  SetPrice
+  SetTokenURI
+  SetRoyaltyReceivers
+  Charges
+}
+
+/// On-chain transaction record. Stores hash, status, type (Deploy/Mint/Burn/etc.).
+/// Links to blockchain. Optional checkoutId for purchase-related transactions.
+model transaction {
+  hash             String              @id
+  chainId          String
+  from             String
+  to               String
+  value            String
+  valueFormatted   String
+  gasLimit         String
+  gasPrice         String
+  gasUsed          String?
+  blockNumber      Int?
+  blockHash        String?
+  transactionIndex Int?
+  status           Int?
+  nonce            Int
+  data             String
+  type             Web3TransactionType @default(Deploy721C)
+  timestamp        BigInt
+  blockchain       blockchain          @relation(fields: [chainId], references: [chainId])
+  checkoutId       String?
+}
+
+/// Referral code associated with a user's wallet. Tracks source and active state.
+model referral {
+  code          String
+  walletAddress String
+  source        String?
+  createdAt     Int
+  active        Boolean @default(true)
+  user          user    @relation(fields: [walletAddress], references: [walletAddress])
+
+  @@unique([code, walletAddress])
+}
+
+/// Affiliate reward tracking - links user to product/playlist/post and reward value.
+model affiliate {
+  id            Int       @id @default(autoincrement())
+  walletAddress String
+  productId     Int?
+  playlistId    Int?
+  postId        Int?
+  rewardValue   Int       @default(0)
+  timestamp     Int
+  user          user      @relation(fields: [walletAddress], references: [walletAddress])
+  playlist      playlist? @relation(fields: [playlistId], references: [id])
+  product       product?  @relation(fields: [productId], references: [id])
+  post          post?     @relation(fields: [postId], references: [id])
+}
+
+/// Cart item action: Buy, Mint, Rent, BuyService, or None.
+enum CheckoutActions {
+  None
+  BuyAndTransfer
+  BuyAndMint
+  BuyService
+  Rent
+}
+
+/// Cart item - product, playlist, or asset with checkout action (Buy/Rent/etc.).
+/// isActive = soft delete. isSelected = included in checkout. rentalMinutes for rent items.
+model cartItems {
+  id             Int             @id @default(autoincrement())
+  walletAddress  String
+  productId      Int?
+  playlistId     Int?
+  assetId        Int? /// optional: specific asset to buy (for buy path)
+  checkoutAction CheckoutActions
+  checkoutId     String?
+  rentalMinutes  Int             @default(0)
+  quantity       Int             @default(1) /// selected item qty
+  isActive       Boolean         @default(true) /// soft delete flag
+  isSelected     Boolean         @default(false) /// is selected for checkout
+
+  deletedAt  Int? /// timestamp when soft-deleted for audit
+  createdAt  Int
+  updatedAt  Int?
+  actionedAt Int?
+
+  user     user      @relation(fields: [walletAddress], references: [walletAddress])
+  product  product?  @relation(fields: [productId], references: [id])
+  playlist playlist? @relation(fields: [playlistId], references: [id])
+}
+
+/// Trending scores for posts, products, collections, vouchers.
+/// Aggregates like, share, view counts for discovery/ranking.
+model trending {
+  id            Int         @id @default(autoincrement())
+  postId        Int?        @unique
+  productId     Int?        @unique
+  collectionId  Int?        @unique
+  voucherId     Int?        @unique
+  post          post?       @relation(fields: [postId], references: [id])
+  product       product?    @relation(fields: [productId], references: [id])
+  collection    collection? @relation(fields: [collectionId], references: [collectionId])
+  voucher       voucher?    @relation(fields: [voucherId], references: [id])
+  trendingScore Decimal
+  like          Int
+  share         Int
+  view          Int         @default(0)
+}
+
+/// Email mailing list for marketing/community. Tracks subscribe/unsubscribe state.
+model mailing_list {
+  email              String  @id
+  name               String?
+  community          String?
+  createdAt          BigInt
+  updatedAt          BigInt?
+  subscribed         Boolean @default(true)
+  subscribedAt       BigInt?
+  unsubscribedAt     BigInt?
+  unsubscribedReason String?
+}
+
+///////////////////////////////////////////////////////////////
+/// Activity/audit log types for analytics and tracking.
+enum LogType {
+  Mint
+  Burn
+  Transfer
+  Click
+  AddToCart
+  RemoveFromCart
+  CartCheckout
+  Buy
+  List
+  Post
+  Create
+  Upload
+  Download
+  Like
+  Unlike
+  Follow
+  Unfollow
+  Share
+  Tip
+  InviteCollaborator
+  Collaborate
+  Tag
+  Referral
+  Registration
+}
+
+/// Activity logs for user actions (mint, buy, like, follow, etc.).
+/// primaryWalletAddress = actor; secondaryWalletAddress = other party when applicable.
+model logs {
+  id                     Int       @id @default(autoincrement())
+  primaryWalletAddress   String
+  type                   LogType
+  timestamp              Int
+  productId              Int?
+  playlistId             Int?
+  secondaryWalletAddress String?
+  itemReference          String?
+  user                   user      @relation("Primary", fields: [primaryWalletAddress], references: [walletAddress])
+  playlist               playlist? @relation(fields: [playlistId], references: [id])
+  otherUser              user?     @relation("Secondary", fields: [secondaryWalletAddress], references: [walletAddress])
+}
+
+/// JWT signing secrets for auth token generation/validation.
+model jwtConfig {
+  id        Int    @id @default(autoincrement())
+  secret    String @unique
+  createdAt Int
+  updatedAt Int?
+}
+
+/// Account linking - wallet to email/phone for recovery or notifications.
+model account {
+  walletAddress  String           @id
+  email          String?          @unique
+  phone          String?          @unique
+  createdAt      Int
+  updatedAt      Int?
+  questAnalytics QuestAnalytics[]
+}
+
+////////////////////////////////////////////////////////////////
+// Kendra Tables - RBAC and admin
+
+/// Kendra module - logical grouping of permissions (e.g. Users, Content, Analytics).
+model module {
+  id          String       @map("id") /// Machine-readable ID
+  name        String       @map("name") /// Human-readable name
+  sortOrder   Int          @default(0) @map("sort_order")
+  permissions permission[]
+
+  @@id([id], map: "pk_modules")
+  @@map("modules")
+}
+
+/// Kendra permission - granular action within a module (e.g. users:read, content:delete).
+model permission {
+  id              String           @map("id") /// Machine-readable ID
+  name            String           @map("name") /// Human-readable name
+  description     String?          @map("description") /// Optional: description about permission
+  moduleId        String           @map("module_id") /// FK: Reference Module
+  sortOrder       Int              @default(0) @map("sort_order")
+  module          module           @relation(fields: [moduleId], references: [id], map: "fk_permissions_module")
+  permissionRoles permissionRole[]
+
+  @@id([id], map: "pk_permissions")
+  @@map("permissions")
+}
+
+/// Kendra role - collection of permissions. System roles are pre-defined; others are custom.
+model role {
+  id                String           @default(uuid()) /// PK: Unique role ID
+  name              String           @map("name") /// Human-readable role name
+  description       String?          @map("description") /// Optional: description about role
+  isSystemGenerated Boolean          @default(false) @map("is_system_generated") /// Flag indicate system/user-defined role
+  createdAt         Int              @map("created_at") /// UNIX timestamp of role creation
+  updatedAt         Int              @map("updated_at") /// UNIX timestamp of last role update
+  deletedAt         Int?             @map("deleted_at") /// UNIX timestamp of role deletion
+  permissionRoles   permissionRole[]
+  administrators    administrator[]
+
+  @@id([id], map: "pk_roles")
+  @@unique([name], map: "uk_roles_name")
+  @@map("roles")
+}
+
+/// Join table: role grants permission.
+model permissionRole {
+  permissionId String     @map("permission_id") /// Partial PK, FK: Reference Permission
+  roleId       String     @map("role_id") /// Partial PK, FK: Reference Role
+  permission   permission @relation(fields: [permissionId], references: [id], map: "fk_permissionRole_permission")
+  roles        role       @relation(fields: [roleId], references: [id], map: "fk_permissionRole_role")
+
+  @@id([permissionId, roleId], map: "pk_permissions_roles")
+  @@map("permissions_roles")
+}
+
+/// Admin user - email/password auth, linked to role. Supports lockout and soft delete.
+model administrator {
+  id                          String              @default(uuid()) /// PK: Unique admin ID
+  email                       String              @map("email") /// Email address of admin user
+  name                        String?             @map("name") /// Optional: Name of admin user
+  passwordHash                String              @default("") @map("password_hash") /// Encrypted password of admin user
+  roleId                      String              @default("default") @map("role_id") /// FK: References Role of admin user
+  status                      String              @default("active") @map("status") /// Current status of admin user
+  failedLoginAttempts         Int                 @default(0) @map("failed_login_attempts")
+  createdAt                   Int                 @default(0) @map("created_at") /// UNIX timestamp of admin user creation
+  updatedAt                   Int                 @default(0) @map("updated_at") /// UNIX timestamp of last admin user update
+  deletedAt                   Int?                @map("deleted_at") /// UNIX timestamp of admin user deletion
+  lockedAt                    Int?                @map("locked_at") /// UNIX timestamp of admin user account got locked
+  lastLoginAt                 Int?                @map("last_login_at") /// UNIX timestamp of admin user last login
+  role                        role                @relation(fields: [roleId], references: [id], map: "fk_administrators_role")
+  creatorPortfolios           creatorPortfolios[]
+  creatorStatusUpdatedByAdmin user[]              @relation("creatorStatusUpdatedByAdmin")
+  creatorValidatedByAdmin     user[]              @relation("creatorValidatedByAdmin")
+
+  @@id([id], map: "pk_administrator")
+  @@unique([email], map: "uk_administrator_email")
+  @@map("administrator")
+}
+
+/// Legacy administrators table (simple email/password). Possibly superseded by administrator.
+model administrators {
+  email     String  @id
+  password  String
+  name      String?
+  createdAt Int
+  updatedAt Int?
+}
+
+/// Where a charge is applied: Publish, Checkout, Transaction, or CryptoTransfer.
+enum ChargeLocation {
+  Publish        @map("publish")
+  Checkout       @map("checkout")
+  Transaction    @map("transaction")
+  CryptoTransfer @map("crypto_transfer")
+
+  @@map("charge_location")
+}
+
+/// Charge definition - fixed or percentage fee applied at Publish/Checkout/Transaction/Transfer.
+/// Links to chargeType. currency required for fixed amounts.
+model charge {
+  id          String         @default(uuid()) /// PK: Unique charge ID
+  typeId      String         @map("type_id") /// FK: References chargeType
+  description String?        @map("description") /// Optional: description about charge
+  location    ChargeLocation @map("location") /// Location to apply charge
+  currency    String?        @map("currency") /// Required only for fixed amount
+  fixedAmount Decimal        @default(0) @map("fixed_amount") /// Fixed charge amount. Can't have together with percentage
+  percentage  Decimal        @default(0) @map("percentage") /// Charge rate. Can't have together with fixedAmount
+  createdAt   Int            @map("created_at") /// UNIX timestamp of charge creation
+  updatedAt   Int            @map("updated_at") /// UNIX timestamp of last charge update
+  deletedAt   Int?           @map("deleted_at") /// UNIX timestamp of charge deleted
+  chargeType  chargeType     @relation(fields: [typeId], references: [id], map: "fk_charge_charge_type")
+
+  @@id([id], map: "pk_charge")
+  @@map("charge")
+}
+
+/// Charge type category (e.g. Platform Fee, Royalty). Groups related charges.
+model chargeType {
+  id        String   @default(uuid()) /// PK: Unique charge type ID
+  name      String   @map("name") /// Name of charge type (e.g., Platform Fee)
+  createdAt Int      @map("created_at") /// UNIX timestamp of charge type creation
+  updatedAt Int      @map("updated_at") /// UNIX timestamp of last charge type update
+  deletedAt Int?     @map("deleted_at") /// UNIX timestamp of charge type deleted
+  charges   charge[]
+
+  @@id([id], map: "pk_charge_type")
+  @@map("charge_type")
+}
+
+/// Order lifecycle: New → Pending → Paid → Completed (or Cancelled/Failed).
+enum OrderStatus {
+  New       @map("new")
+  Pending   @map("pending")
+  Paid      @map("paid")
+  Completed @map("completed")
+  Cancelled @map("cancelled")
+  Failed    @map("failed")
+
+  @@map("order_status")
+}
+
+/// Payment method: Crypto (on-chain) or Fiat.
+enum PaymentType {
+  Crypto @map("crypto")
+  Fiat   @map("fiat")
+
+  @@map("payment_type")
+}
+
+/// Checkout session - groups cart items, computes subtotal/charges/total.
+/// Links to orders and wallet transactions when payment completes.
+model checkout {
+  id                String              @default(uuid()) /// PK: Checkout unique ID
+  userWalletAddress String              @map("user_wallet_address") /// FK: References user performing the checkout
+  subtotal          Decimal             @default(0) @map("subtotal") /// Sum of orders total before the charges
+  totalCharges      Decimal             @default(0) @map("total_charges") /// Total amount of charges applied to the checkout
+  totalAmount       Decimal             @default(0) @map("total_amount") /// Final total amount after charges to pay at checkout
+  createdAt         BigInt              @map("create_at") /// UNIX timestamp of checkout creation
+  checkoutCharges   checkoutCharge[]
+  orders            order[]
+  user              user                @relation(fields: [userWalletAddress], references: [walletAddress], map: "fk_checkout_user")
+  transactions      walletTransaction[]
+
+  @@id([id], map: "pk_checkout")
+  @@map("checkout")
+}
+
+/// Order - single buyer-to-seller purchase. Belongs to a checkout.
+/// Tracks payment type, status, amount. Contains orderItems.
+model order {
+  id                String      @default(uuid()) /// PK: Order unique ID
+  checkoutId        String      @map("checkout_id") /// FK: References checkout the orders created from
+  paymentId         String?     @map("payment_id") /// Optional FK: References Transaction once ID is created
+  paymentType       PaymentType @map("payment_type") /// Enum indicator which payment type used
+  currency          String?     @map("currency") /// Fiat currency or crypto token based on payment type
+  fromWalletAddress String      @map("from_wallet_address") /// FK: References buyer user the order belongs to
+  toWalletAddress   String      @map("to_wallet_address") /// FK: References seller user to receive the payment
+  status            OrderStatus @default(New) @map("status") /// Status of order
+  amount            Decimal     @default(0) @map("amount") /// Total amount of the order
+  createdAt         BigInt      @map("created_at") /// UNIX timestamp of order creation
+  updatedAt         BigInt?     @map("updated_at") /// UNIX timestamp of last order update
+  orderItems        orderItem[]
+  buyer             user        @relation(name: "buyerOrders", fields: [fromWalletAddress], references: [walletAddress], map: "fk_orders_user_buyer")
+  seller            user        @relation(name: "sellerOrders", fields: [toWalletAddress], references: [walletAddress], map: "fk_orders_user_seller")
+  checkout          checkout    @relation(fields: [checkoutId], references: [id], map: "fk_orders_checkout")
+
+  @@id([id], map: "pk_orders")
+  @@map("orders") // Adjusted to avoid postgresql reserved keywords
+}
+
+/// Order line item - product snapshot at checkout. Quantity, unit price, charges.
+model orderItem {
+  id             String          @default(uuid()) /// PK: Order Item unique ID
+  orderId        String          @map("order_id") /// FK: References Order the item belongs to
+  productId      Int             @map("product_id") /// FK: References Product for details
+  assetId        Int?            @map("asset_id") /// optional: specific asset being bought (for buy path)
+  checkoutAction CheckoutActions @map("checkout_action") /// Checkout action type of item
+  status         OrderStatus     @default(New) /// Status of order item
+  errorMessage   String?         @map("error_message") /// Optional: store failure reason
+  unitPrice      Decimal         @map("unit_price") /// Snapshot of item unit price at checkout
+  quantity       Int             @map("quantity") /// Order quantity of item.
+  subtotal       Decimal         @default(0) @map("subtotal") /// Subtotal of item = unitPrice * quantity
+  charges        Decimal         @default(0) @map("charges") /// Total charges applied on the order items
+  order          order           @relation(fields: [orderId], references: [id], map: "fk_orderItem_order", onDelete: Cascade)
+  product        product         @relation(fields: [productId], references: [id], map: "fk_orderItem_product")
+
+  @@id([id], map: "pk_order_item")
+  @@map("order_item")
+}
+
+/// Snapshot of charge applied at checkout (type, fixed/percentage, applied amount).
+model checkoutCharge {
+  id             String   @default(uuid()) /// PK: Check Charge unique ID
+  checkoutId     String   @map("checkout_id") /// FK: References Checkout the charge imposed to
+  chargeId       String?  @map("charge_id") /// Optional FK: Charge (Reference only)
+  chargeTypeName String   @map("charge_type_name") /// Snapshot of charge type name at checkout
+  fixedAmount    Decimal  @default(0) @map("fixed_amount") /// Snapshot of charge fixed amount at checkout
+  percentage     Decimal  @default(0) @map("percentage") /// Snapshot of charge percentage at checkout
+  appliedAmount  Decimal  @default(0) @map("applied_amount") /// Calculated charge amount applied
+  checkout       checkout @relation(fields: [checkoutId], references: [id], map: "fk_checkoutCharge_checkout", onDelete: Cascade)
+
+  @@id([id], map: "pk_checkout_charge")
+  @@map("checkout_charge")
+}
+
+/// Charge applied when publishing a project. Snapshot of charge config at publish time.
+model publishCharge {
+  id             String  @id @default(uuid())
+  chargeId       String?
+  chargeTypeName String
+  fixedAmount    Decimal @default(0)
+  percentage     Decimal @default(0)
+  appliedAmount  Decimal @default(0)
+
+  projectId Int?
+  project   project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+/// Platform wallet category: Platform (operational) or Sponsor.
+enum WalletType {
+  Platform
+  Sponsor
+}
+
+/// Platform-owned wallets for operations (Platform or Sponsor type).
+model platformWallet {
+  id            Int        @id @default(autoincrement())
+  name          String
+  walletAddress String
+  chainId       String?
+  walletType    WalletType @default(Platform)
+  isActive      Boolean    @default(true)
+  createdBy     String
+  updatedBy     String?
+  createdAt     Int
+  updatedAt     Int?
+
+  @@unique([walletAddress, chainId])
+}
+
+/// User/internal wallet balance - fiat or crypto. Used for platform balance tracking.
+model wallet {
+  id            Int                 @id @default(autoincrement())
+  walletAddress String
+  currency      String              @default("USD")
+  balance       Decimal             @default(0.00)
+  isActive      Boolean             @default(true)
+  isPlatform    Boolean             @default(false)
+  createdAt     BigInt
+  updatedAt     BigInt?
+  transactions  walletTransaction[]
+
+  @@unique([walletAddress, currency])
+}
+
+/// Wallet transaction - credit/debit with flow, type, status.
+/// Links to checkout for purchase-related flows. Groups by relatedRef.
+model walletTransaction {
+  id             Int     @id @default(autoincrement())
+  transactionRef String  @unique @default(uuid()) /// Internal TX ID
+  externalRef    String? @unique /// PS ref ID
+  relatedRef     String  @default(uuid()) /// Always exists, groups TXNs (even single)
+
+  walletId Int
+  wallet   wallet @relation(fields: [walletId], references: [id])
+
+  flow     TransactionFlow
+  type     TransactionType
+  amount   Decimal         @default(0.00)
+  currency String          @default("USD")
+
+  fromAddress String? /// Sender walletAddress
+  toAddress   String? /// Recipient walletAddress
+  balAfter    Decimal /// Initiator wallet balance after TXN
+
+  status      TransactionStatus @default(PENDING)
+  description String?
+  createdAt   BigInt /// TX initiated timestamp
+  updatedAt   BigInt?
+  completedAt BigInt? /// TX completed timestamp
+
+  /// Optional FK
+  checkoutId String?
+  checkout   checkout? @relation(fields: [checkoutId], references: [id], onDelete: Cascade)
+
+  @@index([checkoutId])
+}
+
+/// Wallet transaction direction: Credit (in) or Debit (out).
+enum TransactionFlow {
+  Credit
+  Debit
+}
+
+/// Wallet transaction category: Topup, Purchase, Sell, Transfer, Cashout, or Charge.
+enum TransactionType {
+  Topup
+  Purchase
+  Sell
+  Transfer
+  Cashout
+  Charge
+}
+
+/// Wallet transaction status: Pending, Canceled, Succeeded, or Failed.
+enum TransactionStatus {
+  PENDING
+  CANCELED
+  SUCCEEDED
+  FAILED
+}
+
+/// Supported currencies (Fiat or Crypto) for pricing. Used by products and assets.
+model currency {
+  symbol    String       @id // e.g., USD, ETH
+  name      String
+  type      CurrencyType
+  isActive  Boolean      @default(true)
+  createdAt Int
+  updatedAt Int?
+  updatedBy String?      @map("updated_by")
+  deletedAt Int?
+  products  product[]
+  assets    asset[]
+
+  @@map("currencies")
+}
+
+/// Currency classification for validation and display.
+enum CurrencyType {
+  Fiat
+  Crypto
+}
+
+/// Referral code assigned to user. Supports parent/child hierarchy for multi-level referrals.
+model referralCode {
+  code          String         @unique
+  walletAddress String         @map("wallet_address")
+  used          Boolean        @default(false)
+  parentCode    String?        @map("parent_code")
+  createdAt     Int            @map("created_at")
+  parent        referralCode?  @relation("ReferralCodeParent", fields: [parentCode], references: [code])
+  children      referralCode[] @relation("ReferralCodeParent")
+  user          user           @relation(fields: [walletAddress], references: [walletAddress])
+
+  @@id([code, walletAddress])
+  @@map("referral_codes")
+}
+
+/// Referral link - URL with source/referrer tracking and optional quality score.
+model referralLinks {
+  id            String  @id @default(uuid())
+  walletAddress String  @map("wallet_address")
+  link          String
+  source        String?
+  referrer      String?
+  referred      String?
+  quality       Int?
+  createdAt     Int
+  updatedAt     Int?
+  user          user    @relation(fields: [walletAddress], references: [walletAddress])
+}
+
+/// Parent referral codes for hierarchical tracking.
+model parentReferralCode {
+  code      String  @id
+  createdAt Int
+  used      Boolean @default(false)
+}
+
+/// Quest chain private keys - encrypted keys for quest-related wallet operations per chain.
+model quest_pk {
+  chainId   String @id // Primary key - chain ID as string (e.g., "84532" for Base Sepolia)
+  pk        String // Encrypted private key (AES-256-GCM encrypted)
+  createdAt Int    @default(dbgenerated("extract(epoch from now())::int"))
+  updatedAt Int    @default(dbgenerated("extract(epoch from now())::int"))
+}
+
+// Feature flags
+enum FeatureFlag {
+  Checkout
+  Transfer
+  Publish
+  Platform
+  Login
+}
+
+/// Feature flags - enable/disable platform features by name.
+model featureSettings {
+  id        String      @id @default(uuid())
+  feature   FeatureFlag
+  enabled   Boolean     @default(false)
+  createdAt Int         @default(dbgenerated("extract(epoch from now())::int"))
+  updatedAt Int         @default(dbgenerated("extract(epoch from now())::int"))
+
+  @@unique([feature])
+  @@map("feature_settings")
+}

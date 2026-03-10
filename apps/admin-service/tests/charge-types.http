@@ -1,0 +1,28 @@
+POST http://localhost:3000/api/charge-types
+Content-Type: application/json
+
+{
+  "name": "Platform Fee"
+}
+
+###
+
+GET http://localhost:3000/api/charge-types
+
+###
+
+GET http://localhost:3000/api/charge-types/91cc65d1-f1c2-424b-a80e-00a7d4cdb4d2
+
+###
+
+PUT http://localhost:3000/api/charge-types
+Content-Type: application/json
+
+{
+  "id": "91cc65d1-f1c2-424b-a80e-00a7d4cdb4d2",
+  "name": "Platform Fee V2"
+}
+
+###
+
+DELETE http://localhost:3000/api/charge-types/91cc65d1-f1c2-424b-a80e-00a7d4cdb4d2

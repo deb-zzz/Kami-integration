@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>File Upload with Progress</title>
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				max-width: 800px;
+				margin: 0 auto;
+				padding: 20px;
+				background-color: #f5f5f5;
+			}
+			.upload-container {
+				background: white;
+				padding: 30px;
+				border-radius: 10px;
+				box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+			}
+			.file-input {
+				margin: 20px 0;
+				padding: 10px;
+				border: 2px dashed #ddd;
+				border-radius: 5px;
+				text-align: center;
+				cursor: pointer;
+			}
+			.file-input:hover {
+				border-color: #007bff;
+			}
+			.progress-container {
+				margin: 20px 0;
+				display: none;
+			}
+			.progress-bar {
+				width: 100%;
+				height: 20px;
+				background-color: #f0f0f0;
+				border-radius: 10px;
+				overflow: hidden;
+			}
+			.progress-fill {
+				height: 100%;
+				background: linear-gradient(90deg, #007bff, #0056b3);
+				width: 0%;
+				transition: width 0.3s ease;
+			}
+			.progress-text {
+				margin-top: 10px;
+				text-align: center;
+				font-weight: bold;
+			}
+			.upload-btn {
+				background: #007bff;
+				color: white;
+				border: none;
+				padding: 12px 24px;
+				border-radius: 5px;
+				cursor: pointer;
+				font-size: 16px;
+				margin: 10px 5px;
+			}
+			.upload-btn:hover {
+				background: #0056b3;
+			}
+			.upload-btn:disabled {
+				background: #ccc;
+				cursor: not-allowed;
+			}
+			.result {
+				margin-top: 20px;
+				padding: 15px;
+				border-radius: 5px;
+				display: none;
+			}
+			.success {
+				background: #d4edda;
+				border: 1px solid #c3e6cb;
+				color: #155724;
+			}
+			.error {
+				background: #f8d7da;
+				border: 1px solid #f5c6cb;
+				color: #721c24;
+			}
+			.file-info {
+				margin: 10px 0;
+				padding: 10px;
+				background: #f8f9fa;
+				border-radius: 5px;
+			}
+			.form-group {
+				margin: 15px 0;
+			}
+			.form-group label {
+				display: block;
+				margin-bottom: 5px;
+				font-weight: bold;
+			}
+			.form-group input,
+			.form-group select {
+				width: 100%;
+				padding: 8px;
+				border: 1px solid #ddd;
+				border-radius: 4px;
+				box-sizing: border-box;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="upload-container">
+			<h1>File Upload with Progress Tracking</h1>
+			<p>Upload files up to 5GB with real-time progress tracking. Files larger than 100MB will use multipart upload.</p>
+
+			<form id="uploadForm">
+				<div class="form-group">
+					<label for="projectId">Project ID:</label>
+					<input type="text" id="projectId" value="999" required />
+				</div>
+
+				<div class="form-group">
+					<label for="category">Category:</label>
+					<select id="category">
+						<option value="project">Project</option>
+						<option value="product">Product</option>
+						<option value="profile">Profile</option>
+					</select>
+				</div>
+
+				<div class="form-group">
+					<label for="folder">Folder (optional):</label>
+					<input type="text" id="folder" placeholder="e.g., Videos, Images" />
+				</div>
+
+				<div class="file-input" onclick="document.getElementById('fileInput').click()">
+					<input type="file" id="fileInput" style="display: none" accept="*/*" />
+					<p>Click to select a file or drag and drop</p>
+					<p>Maximum file size: 5GB</p>
+				</div>
+
+				<div id="fileInfo" class="file-info" style="display: none">
+					<strong>Selected file:</strong> <span id="fileName"></span><br />
+					<strong>Size:</strong> <span id="fileSize"></span>
+				</div>
+
+				<div class="progress-container" id="progressContainer">
+					<div class="progress-bar">
+						<div class="progress-fill" id="progressFill"></div>
+					</div>
+					<div class="progress-text" id="progressText">0%</div>
+					<div id="progressDetails"></div>
+				</div>
+
+				<button type="submit" class="upload-btn" id="uploadBtn">Upload File</button>
+				<button type="button" class="upload-btn" id="cancelBtn" style="display: none; background: #dc3545">Cancel Upload</button>
+			</form>
+
+			<div id="result" class="result"></div>
+		</div>
+
+		<script>
+			let currentUploadId = null;
+			let progressInterval = null;
+			let abortController = null;
+
+			// File input handling
+			document.getElementById('fileInput').addEventListener('change', function (e) {
+				const file = e.target.files[0];
+				if (file) {
+					document.getElementById('fileName').textContent = file.name;
+					document.getElementById('fileSize').textContent = formatFileSize(file.size);
+					document.getElementById('fileInfo').style.display = 'block';
+				}
+			});
+
+			// Drag and drop handling
+			const fileInput = document.querySelector('.file-input');
+			fileInput.addEventListener('dragover', function (e) {
+				e.preventDefault();
+				fileInput.style.borderColor = '#007bff';
+			});
+
+			fileInput.addEventListener('dragleave', function (e) {
+				e.preventDefault();
+				fileInput.style.borderColor = '#ddd';
+			});
+
+			fileInput.addEventListener('drop', function (e) {
+				e.preventDefault();
+				fileInput.style.borderColor = '#ddd';
+				const files = e.dataTransfer.files;
+				if (files.length > 0) {
+					document.getElementById('fileInput').files = files;
+					document.getElementById('fileInput').dispatchEvent(new Event('change'));
+				}
+			});
+
+			// Form submission
+			document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+				e.preventDefault();
+
+				const fileInput = document.getElementById('fileInput');
+				const file = fileInput.files[0];
+
+				if (!file) {
+					showResult('Please select a file to upload.', 'error');
+					return;
+				}
+
+				const projectId = document.getElementById('projectId').value;
+				const category = document.getElementById('category').value;
+				const folder = document.getElementById('folder').value;
+
+				await uploadFile(file, projectId, category, folder);
+			});
+
+			// Cancel upload
+			document.getElementById('cancelBtn').addEventListener('click', function () {
+				if (abortController) {
+					abortController.abort();
+					showResult('Upload cancelled.', 'error');
+					resetUpload();
+				}
+			});
+
+			async function uploadFile(file, projectId, category, folder) {
+				const formData = new FormData();
+				formData.append('file', file);
+				if (folder) {
+					formData.append('folder', folder);
+				}
+
+				const url = `http://localhost:3001/api/upload?id=${projectId}&c=${category}`;
+
+				// Create abort controller for cancellation
+				abortController = new AbortController();
+
+				// Show progress UI
+				document.getElementById('progressContainer').style.display = 'block';
+				document.getElementById('uploadBtn').disabled = true;
+				document.getElementById('cancelBtn').style.display = 'inline-block';
+
+				try {
+					const response = await fetch(url, {
+						method: 'POST',
+						body: formData,
+						signal: abortController.signal,
+					});
+
+					const result = await response.json();
+
+					if (response.ok) {
+						// If it's a multipart upload, start tracking progress
+						if (result.uploadId) {
+							currentUploadId = result.uploadId;
+							showResult(
+								`Upload started!<br>
+                        <strong>File:</strong> ${result.key}<br>
+                        <strong>Size:</strong> ${formatFileSize(result.size)}<br>
+                        <strong>Method:</strong> ${result.method}<br>
+                        <strong>Upload ID:</strong> ${result.uploadId}`,
+								'success'
+							);
+							startProgressTracking();
+						} else {
+							// For regular uploads, show completion immediately
+							showResult(
+								`Upload successful!<br>
+                        <strong>File:</strong> ${result.key}<br>
+                        <strong>CDN URL:</strong> <a href="${result.cdn}" target="_blank">${result.cdn}</a><br>
+                        <strong>Size:</strong> ${formatFileSize(result.size)}<br>
+                        <strong>Method:</strong> ${result.method}`,
+								'success'
+							);
+							updateProgress(100, result.size, result.size);
+						}
+					} else {
+						showResult(`Upload failed: ${result.error}`, 'error');
+					}
+				} catch (error) {
+					if (error.name === 'AbortError') {
+						showResult('Upload cancelled.', 'error');
+					} else {
+						showResult(`Upload failed: ${error.message}`, 'error');
+					}
+				} finally {
+					resetUpload();
+				}
+			}
+
+			function startProgressTracking() {
+				if (!currentUploadId) return;
+
+				progressInterval = setInterval(async () => {
+					try {
+						const response = await fetch(`http://localhost:3001/api/upload/progress?uploadId=${currentUploadId}`);
+						const progress = await response.json();
+
+						if (response.ok) {
+							updateProgress(progress.percentage, progress.totalSize, progress.uploadedSize, progress.estimatedTimeRemaining);
+
+							if (progress.status === 'completed') {
+								clearInterval(progressInterval);
+								showResult(
+									`Upload completed!<br>
+                                <strong>File:</strong> ${progress.fileName}<br>
+                                <strong>Size:</strong> ${formatFileSize(progress.totalSize)}<br>
+                                <strong>CDN URL:</strong> <a href="${progress.cdn || '#'}" target="_blank">${
+										progress.cdn || 'Available after completion'
+									}</a>`,
+									'success'
+								);
+							} else if (progress.status === 'failed') {
+								clearInterval(progressInterval);
+								showResult(`Upload failed: ${progress.error || 'Unknown error'}`, 'error');
+							}
+						} else {
+							console.error('Failed to fetch progress:', progress.error);
+						}
+					} catch (error) {
+						console.error('Error fetching progress:', error);
+					}
+				}, 1000); // Check every second
+			}
+
+			function updateProgress(percentage, totalSize, uploadedSize, estimatedTimeRemaining = null) {
+				document.getElementById('progressFill').style.width = percentage + '%';
+				document.getElementById('progressText').textContent = percentage + '%';
+
+				let details = `Uploaded: ${formatFileSize(uploadedSize)} / ${formatFileSize(totalSize)}`;
+				if (estimatedTimeRemaining && estimatedTimeRemaining > 0) {
+					details += ` | ETA: ${formatTime(estimatedTimeRemaining)}`;
+				}
+				document.getElementById('progressDetails').textContent = details;
+			}
+
+			function showResult(message, type) {
+				const resultDiv = document.getElementById('result');
+				resultDiv.innerHTML = message;
+				resultDiv.className = `result ${type}`;
+				resultDiv.style.display = 'block';
+			}
+
+			function resetUpload() {
+				document.getElementById('uploadBtn').disabled = false;
+				document.getElementById('cancelBtn').style.display = 'none';
+				document.getElementById('progressContainer').style.display = 'none';
+				document.getElementById('progressFill').style.width = '0%';
+				document.getElementById('progressText').textContent = '0%';
+				document.getElementById('progressDetails').textContent = '';
+
+				if (progressInterval) {
+					clearInterval(progressInterval);
+					progressInterval = null;
+				}
+
+				currentUploadId = null;
+				abortController = null;
+			}
+
+			function formatFileSize(bytes) {
+				if (bytes === 0) return '0 Bytes';
+				const k = 1024;
+				const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+				const i = Math.floor(Math.log(bytes) / Math.log(k));
+				return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+			}
+
+			function formatTime(milliseconds) {
+				const seconds = Math.floor(milliseconds / 1000);
+				const minutes = Math.floor(seconds / 60);
+				const hours = Math.floor(minutes / 60);
+
+				if (hours > 0) {
+					return `${hours}h ${minutes % 60}m`;
+				} else if (minutes > 0) {
+					return `${minutes}m ${seconds % 60}s`;
+				} else {
+					return `${seconds}s`;
+				}
+			}
+		</script>
+	</body>
+</html>

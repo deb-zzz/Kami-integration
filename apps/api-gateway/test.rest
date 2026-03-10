@@ -1,0 +1,88 @@
+@apikey=eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+
+# Get one
+GET {{hostname}}/profile-service/0x16c607Dbe5e4959B159510C63925051e31d2E0A6?withProducts=true&withAssets=true&withProjects=true
+
+###
+# Get all
+GET {{hostname}}/profile-service
+
+###
+# Get one
+GET {{hostname}}/profile-service/0x16c607Dbe5e4959B159510C63925051e31d2E0A6?withProducts=true&withAssets=true&withProjects=true
+Content-Type: application/json
+Authorization: Bearer {{apikey}}
+
+###
+GET http://localhost:3000
+issue: true
+
+
+###
+POST {{hostname}}/profile-service/0x16c607Dbe5e4959B159510C63925051e31d2E0A6/tags
+Content-Type: application/json
+Authorization: Bearer {{apikey}}
+Signature: 12345
+
+{
+    "tag": "Running",
+    "type": "Skill"
+}
+
+###
+POST https://api-gateway.kami.ocu-napse.com/profile-service/0x16c607Dbe5e4959B159510C63925051e31d2E0A6/tags
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PoBs5V8_t-pAUhJARUh5cQ.r2s4CjGDXY1CEhaweWEpcf-o1OdES2ttWC34uQ22mKBAC9vfcv1SvPfT-TdZv1RSdZNi1kHdzSp5AXUONUpaMM1pfVhfH8Y-zgYCoP8uKKs.YC5GVNpfSZ-Lo_ip9nhskQ
+Signature: 12345
+
+[
+    {
+        "tag": "Running",
+        "type": "Skill"
+    },
+    {
+        "tag": "Teaching",
+        "type": "Skill"
+    },
+    {
+        "tag": "Aviation",
+        "type": "Interest"
+    }
+]
+
+###
+# Get all
+GET http://localhost:3000/profile-service
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA
+
+###
+# Get all
+GET https://api-gateway.kami.ocu-napse.com/profile-service
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA
+
+###
+# Get one
+GET http://api-gateway.kami.ocu-napse.com/post-service/0x16c607Dbe5e4959B159510C63925051e31d2E0A6/1
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA
+
+###
+# Get all
+GET http://api-gateway.kami.ocu-napse.com/post-service
+
+###
+GET http://api-gateway.kami.ocu-napse.com/collaboration-service/search/0x16c607Dbe5e4959B159510C63925051e31d2E0A6?s=lead
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA
+
+
+###
+POST http://api-gateway.kami.ocu-napse.com/signin-service/otp/generate
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA
+Signature: 12345
+
+{
+    "email": "test@test.com"
+}
+
+###
+GET http://localhost:4000/wallet-service/blockchain/0x14a34
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA

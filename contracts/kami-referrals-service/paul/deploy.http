@@ -1,0 +1,39 @@
+post http://localhost:23456/contract/deploy
+Content-Type: application/json
+
+{
+  "initialUri": "https://www.kamiunlimited.com"
+}
+
+###
+
+post http://localhost:23456/contract/mint
+Content-Type: application/json
+
+{
+  "tokenId": 1,
+  "amount": 1,
+  "recipient": "0x1a653455cf346034e6bee40cb80cf7748876dc7d"
+}
+
+###
+
+post http://localhost:23456/contract/set-token-uri
+Content-Type: application/json
+
+{
+  "tokenId": 1,
+  "newUri": "https://www.paulstinchcombe.com/1.json"
+}
+
+###
+
+get http://localhost:23456/contract/uri/1
+
+###
+
+get http://localhost:23456/contract/total-supply/1
+
+###
+
+get http://localhost:23456/contract/balance/0x1a653455cf346034e6bee40cb80cf7748876dc7d/1

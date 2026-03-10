@@ -1,0 +1,28 @@
+{
+	"name": "kami-sponsored-nft-contracts",
+	"version": "1.0.0",
+	"description": "ERC-4337 sponsored transaction contracts for specialized NFT operations on Base",
+	"main": "index.js",
+	"scripts": {
+		"compile": "forge build",
+		"test": "forge test",
+		"deploy:base": "forge script scripts/Deploy.s.sol --rpc-url base --broadcast --verify",
+		"deploy:sepolia": "forge script scripts/Deploy.s.sol --rpc-url base-sepolia --broadcast --verify"
+	},
+	"keywords": [
+		"ethereum",
+		"erc4337",
+		"account-abstraction",
+		"base",
+		"nft",
+		"sponsored-transactions"
+	],
+	"author": "KAMI",
+	"license": "MIT",
+	"devDependencies": {
+		"forge-std": "^1.1.2"
+	},
+	"dependencies": {
+		"@openzeppelin/contracts": "^5.0.0"
+	}
+}

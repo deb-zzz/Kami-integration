@@ -1,0 +1,22 @@
+{
+	"fileTypes": [
+		{
+			"key": "images",
+			"category": "Static Image",
+			"formats": ["jpeg", "jpg", "png", "gif", "webp", "bmp", "svg"],
+			"needCoverArtwork": false
+		},
+		{
+			"key": "video",
+			"category": "Video",
+			"formats": ["gif", "mp4", "avi", "wmv", "mkv", "webm"],
+			"needCoverArtwork": true
+		},
+		{
+			"key": "audio",
+			"category": "Audio",
+			"formats": ["mp3", "aac", "ogg", "flac", "alac", "wav", "aiff"],
+			"needCoverArtwork": true
+		}
+	]
+}

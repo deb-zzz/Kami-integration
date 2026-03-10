@@ -1,0 +1,19 @@
+{
+	"name": "FOMOcaster (Staging)",
+	"contractAddress": "0x7f352f855fc2a98db1fdddbbe8e8ed2c7af81434",
+	"tokenId": 2,
+	"tokenStandard": "ERC1155",
+	"description": "You create the spark everyone wants to chase. You turn the smallest moment into something unmissable, unforgettable and instantly viral. Your potential lies in shaping momentum itself — building waves of excitement that shift trends and make the world give a sh*t.",
+	"htmlDescription": "<p class='p1'><span class='s1'>You create the spark everyone wants to chase.<br /></span><span class='s1'>You turn the smallest moment into something<br /></span><span class='s1'>unmissable,<br /></span><span class='s1'>unforgettable<br /></span><span class='s1'>and instantly viral.</span></p><p class='p2'>Your potential lies in shaping momentum itself<br /><span class='s1'>&mdash; building waves of excitement that shift trends<br /></span><span class='s1'>and make the world give a sh*t.</span></p><p class='p1'>&nbsp;</p>",
+	"image": "ipfs://QmXydKtTwno6HnH6yZLTrgHpYS1viEhj856DktdAF1xn1x",
+	"attributes": [
+		{
+			"trait_type": "Archetype",
+			"value": "FOMOcaster"
+		},
+		{
+			"trait_type": "Series",
+			"value": "KAMI Genesis Sigil"
+		}
+	]
+}

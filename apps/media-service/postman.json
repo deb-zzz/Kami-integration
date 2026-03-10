@@ -1,0 +1,497 @@
+{
+	"info": {
+		"name": "KAMI Platform Media Service - Upload API",
+		"description": "Comprehensive Postman collection for the `/api/upload` endpoint. This endpoint supports chunked file uploads with real-time progress tracking, status monitoring, and upload cancellation.\n\n## Overview\n\nThe `/api/upload` endpoint implements a chunked upload system that allows uploading large files (up to 5GB) in 5MB chunks. This approach provides:\n- Immediate progress feedback\n- Memory-efficient processing\n- Support for large files\n- Real-time status tracking\n- Upload cancellation capability\n\n## Endpoints\n\n1. **POST /api/upload** - Upload file chunks (main upload endpoint)\n2. **GET /api/upload** - Get upload status and progress\n3. **DELETE /api/upload** - Cancel an ongoing upload\n\n## Authentication\n\nNo authentication is required for these endpoints. However, ensure proper AWS S3 credentials are configured on the server.\n\n## Rate Limits\n\n- Maximum file size: 5GB\n- Chunk size: 5MB (recommended)\n- Maximum chunks per file: 10,000\n\n## Error Handling\n\nAll endpoints return consistent error responses with:\n- `error`: Human-readable error message\n- `details`: Detailed error description\n- `code`: Machine-readable error code\n- `timestamp`: ISO 8601 timestamp (for some errors)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_postman_id": "kami-upload-api-v1",
+		"version": "1.0.0"
+	},
+	"item": [
+		{
+			"name": "Upload File Chunk",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "chunk",
+							"type": "file",
+							"description": "**Required.** The file chunk data. This should be a portion of the file (typically 5MB). For single-chunk uploads (files < 5MB), send the entire file.\n\n**Type:** File (binary data)\n**Max Size:** 5MB per chunk (recommended)\n**Note:** The chunk size should match the chunking strategy used on the client side."
+						},
+						{
+							"key": "uploadId",
+							"type": "text",
+							"value": "chunked_{{$timestamp}}_{{$randomAlphaNumeric}}",
+							"description": "**Required.** Unique identifier for this upload session. Must be consistent across all chunks for the same file.\n\n**Format:** `chunked_{timestamp}_{randomString}`\n**Example:** `chunked_1703123456789_abc123def`\n**Length:** Minimum 20 characters\n**Note:** Generate a new uploadId for each new file upload. Use the same uploadId for all chunks of the same file."
+						},
+						{
+							"key": "chunkIndex",
+							"type": "text",
+							"value": "0",
+							"description": "**Required.** Zero-based index of the current chunk.\n\n**Type:** Integer (as string)\n**Range:** 0 to (totalChunks - 1)\n**Example:** `0` for the first chunk, `1` for the second chunk, etc.\n**Note:** Chunks should be uploaded sequentially (0, 1, 2, ...) for optimal performance."
+						},
+						{
+							"key": "totalChunks",
+							"type": "text",
+							"value": "1",
+							"description": "**Required.** Total number of chunks for this file.\n\n**Type:** Integer (as string)\n**Range:** 1 to 10,000\n**Example:** `1` for single-chunk upload, `10` for a 50MB file (10 × 5MB chunks)\n**Note:** This value must be the same for all chunks of the same file."
+						},
+						{
+							"key": "fileName",
+							"type": "text",
+							"value": "example.jpg",
+							"description": "**Required.** Original filename of the file being uploaded.\n\n**Type:** String\n**Max Length:** 1024 characters (including path)\n**Example:** `my-video.mp4`, `document.pdf`\n**Note:** The filename will be used in the S3 path. Special characters will be preserved."
+						},
+						{
+							"key": "fileSize",
+							"type": "text",
+							"value": "1048576",
+							"description": "**Required.** Total size of the file in bytes.\n\n**Type:** Integer (as string)\n**Range:** 1 to 5,368,709,120 (5GB)\n**Example:** `1048576` for 1MB, `52428800` for 50MB\n**Note:** This must be the total file size, not the chunk size. Must be the same for all chunks."
+						},
+						{
+							"key": "folder",
+							"type": "text",
+							"value": "",
+							"disabled": true,
+							"description": "**Optional.** Subfolder within the project/product/profile to organize files.\n\n**Type:** String\n**Example:** `uploads`, `videos`, `images/documents`\n**Note:** If provided, the S3 path will be: `{Category}/{id}/{folder}/{fileName}`. If omitted, the path will be: `{Category}/{id}/{fileName}`"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{base_url}}/api/upload?id={{project_id}}&c={{category}}",
+					"host": ["{{base_url}}"],
+					"path": ["api", "upload"],
+					"query": [
+						{
+							"key": "id",
+							"value": "{{project_id}}",
+							"description": "**Required.** Project, Product, or Profile ID.\n\n**Type:** String\n**Example:** `999`, `project-123`, `user-456`\n**Note:** This ID is used to organize files in S3. The resulting path will be: `{Category}/{id}/{fileName}` or `{Category}/{id}/{folder}/{fileName}`"
+						},
+						{
+							"key": "c",
+							"value": "{{category}}",
+							"description": "**Optional.** Category type for file organization.\n\n**Valid Values:**\n- `project` (default) → Maps to `Project/` in S3\n- `product` → Maps to `Product/` in S3\n- `profile` → Maps to `Profile/` in S3\n\n**Default:** `project`\n**Note:** Case-insensitive. Invalid values default to `project`."
+						}
+					]
+				},
+				"description": "Uploads a file chunk to the server. This is the main upload endpoint that implements chunked file uploads.\n\n## How It Works\n\n1. **Client-side chunking:** Split the file into 5MB chunks (or smaller for the last chunk)\n2. **Sequential upload:** Upload chunks one by one, starting with chunkIndex 0\n3. **Progress tracking:** Each chunk upload returns progress information\n4. **File assembly:** When the last chunk (chunkIndex === totalChunks - 1) is received, the server automatically:\n   - Assembles all chunks into the complete file\n   - Uploads the file to S3\n   - Triggers media processing (if enabled) for media files\n\n## Response Types\n\n### Intermediate Chunk Response (chunkIndex < totalChunks - 1)\n\nReturns progress information for the chunk upload phase:\n\n```json\n{\n  \"message\": \"Chunk received\",\n  \"uploadId\": \"chunked_1703123456789_abc123def\",\n  \"chunkIndex\": 0,\n  \"totalChunks\": 10,\n  \"received\": 1,\n  \"remaining\": 9\n}\n```\n\n### Final Chunk Response (chunkIndex === totalChunks - 1)\n\nReturns complete upload information and starts S3 upload:\n\n```json\n{\n  \"message\": \"Upload started\",\n  \"uploadId\": \"chunked_1703123456789_abc123def\",\n  \"key\": \"Project/999/uploads/video.mp4\",\n  \"cdn\": \"https://cdn.example.com/Project/999/uploads/video.mp4\",\n  \"size\": 52428800,\n  \"method\": \"chunked\",\n  \"totalChunks\": 10,\n  \"received\": 10,\n  \"remaining\": 0\n}\n```\n\n## Error Responses\n\n### 400 Bad Request\n\n**Validation Error:**\n```json\n{\n  \"error\": \"Validation failed\",\n  \"details\": \"chunk is required and must be a valid file; uploadId is required and must be a non-empty string\",\n  \"code\": \"VALIDATION_ERROR\"\n}\n```\n\n**Invalid Chunk Index:**\n```json\n{\n  \"error\": \"Invalid chunk index\",\n  \"details\": \"chunkIndex (10) must be between 0 and 9\",\n  \"code\": \"INVALID_CHUNK_INDEX\"\n}\n```\n\n**Missing Project ID:**\n```json\n{\n  \"error\": \"Missing required parameter\",\n  \"details\": \"id parameter is required in the URL\",\n  \"code\": \"MISSING_PROJECT_ID\"\n}\n```\n\n### 413 Payload Too Large\n\n```json\n{\n  \"error\": \"File too large\",\n  \"details\": \"File size (5.20GB) exceeds maximum allowed size (5GB)\",\n  \"code\": \"FILE_TOO_LARGE\"\n}\n```\n\n### 409 Conflict\n\n```json\n{\n  \"error\": \"Duplicate chunk\",\n  \"details\": \"This chunk has already been uploaded. Please retry the upload.\",\n  \"code\": \"DUPLICATE_CHUNK\"\n}\n```\n\n### 500 Internal Server Error\n\n```json\n{\n  \"error\": \"Chunk storage failed\",\n  \"details\": \"Unable to store the file chunk. Please try again.\",\n  \"code\": \"CHUNK_STORAGE_ERROR\"\n}\n```\n\n## Status Codes\n\n- **200 OK:** Chunk received successfully\n- **400 Bad Request:** Validation error or invalid parameters\n- **403 Forbidden:** Permission denied\n- **404 Not Found:** Resource not found\n- **408 Request Timeout:** Upload timeout\n- **409 Conflict:** Duplicate chunk\n- **413 Payload Too Large:** File exceeds maximum size\n- **429 Too Many Requests:** Rate limit exceeded\n- **500 Internal Server Error:** Server error\n- **503 Service Unavailable:** Network error\n- **507 Insufficient Storage:** Storage full or memory error\n\n## Notes\n\n- Chunks should be uploaded sequentially for best performance\n- The last chunk triggers automatic S3 upload and media processing\n- Use the same `uploadId` for all chunks of the same file\n- Monitor upload progress using the GET endpoint with the `uploadId`\n- Large files are automatically uploaded to S3 using multipart upload (>100MB)"
+			},
+			"response": [
+				{
+					"name": "Intermediate Chunk Success",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "chunk",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "uploadId",
+									"value": "chunked_1703123456789_abc123def",
+									"type": "text"
+								},
+								{
+									"key": "chunkIndex",
+									"value": "0",
+									"type": "text"
+								},
+								{
+									"key": "totalChunks",
+									"value": "10",
+									"type": "text"
+								},
+								{
+									"key": "fileName",
+									"value": "video.mp4",
+									"type": "text"
+								},
+								{
+									"key": "fileSize",
+									"value": "52428800",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/upload?id=999&c=project",
+							"host": ["{{base_url}}"],
+							"path": ["api", "upload"],
+							"query": [
+								{
+									"key": "id",
+									"value": "999"
+								},
+								{
+									"key": "c",
+									"value": "project"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"message\": \"Chunk received\",\n  \"uploadId\": \"chunked_1703123456789_abc123def\",\n  \"chunkIndex\": 0,\n  \"totalChunks\": 10,\n  \"received\": 1,\n  \"remaining\": 9\n}"
+				},
+				{
+					"name": "Final Chunk Success",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "chunk",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "uploadId",
+									"value": "chunked_1703123456789_abc123def",
+									"type": "text"
+								},
+								{
+									"key": "chunkIndex",
+									"value": "9",
+									"type": "text"
+								},
+								{
+									"key": "totalChunks",
+									"value": "10",
+									"type": "text"
+								},
+								{
+									"key": "fileName",
+									"value": "video.mp4",
+									"type": "text"
+								},
+								{
+									"key": "fileSize",
+									"value": "52428800",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/upload?id=999&c=project",
+							"host": ["{{base_url}}"],
+							"path": ["api", "upload"],
+							"query": [
+								{
+									"key": "id",
+									"value": "999"
+								},
+								{
+									"key": "c",
+									"value": "project"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"message\": \"Upload started\",\n  \"uploadId\": \"chunked_1703123456789_abc123def\",\n  \"key\": \"Project/999/video.mp4\",\n  \"cdn\": \"https://cdn.example.com/Project/999/video.mp4\",\n  \"size\": 52428800,\n  \"method\": \"chunked\",\n  \"totalChunks\": 10,\n  \"received\": 10,\n  \"remaining\": 0\n}"
+				},
+				{
+					"name": "Validation Error",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{base_url}}/api/upload?id=999&c=project",
+							"host": ["{{base_url}}"],
+							"path": ["api", "upload"]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"error\": \"Validation failed\",\n  \"details\": \"chunk is required and must be a valid file; uploadId is required and must be a non-empty string\",\n  \"code\": \"VALIDATION_ERROR\"\n}"
+				},
+				{
+					"name": "File Too Large",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "fileSize",
+									"value": "6000000000",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/upload?id=999&c=project",
+							"host": ["{{base_url}}"],
+							"path": ["api", "upload"]
+						}
+					},
+					"status": "Payload Too Large",
+					"code": 413,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"error\": \"File too large\",\n  \"details\": \"File size (5.59GB) exceeds maximum allowed size (5GB)\",\n  \"code\": \"FILE_TOO_LARGE\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Get Upload Status",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/upload?uploadId={{upload_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["api", "upload"],
+					"query": [
+						{
+							"key": "uploadId",
+							"value": "{{upload_id}}",
+							"description": "**Required.** The upload ID returned from the POST request.\n\n**Format:** Must start with `chunked_` and be at least 20 characters long\n**Example:** `chunked_1703123456789_abc123def`\n**Note:** Use the same uploadId that was used during chunk upload."
+						}
+					]
+				},
+				"description": "Retrieves the current status and progress of an upload.\n\n## Response Format\n\n### Upload Status Object\n\n```json\n{\n  \"uploadId\": \"chunked_1703123456789_abc123def\",\n  \"fileName\": \"video.mp4\",\n  \"fileSize\": 52428800,\n  \"totalChunks\": 10,\n  \"receivedChunks\": 10,\n  \"status\": \"uploading_to_s3\",\n  \"key\": \"Project/999/video.mp4\",\n  \"cdn\": \"https://cdn.example.com/Project/999/video.mp4\",\n  \"previewCdn\": null,\n  \"uploadedSize\": 26214400,\n  \"percentage\": 50,\n  \"elapsedTime\": 30000,\n  \"estimatedTimeRemaining\": 30000\n}\n```\n\n### Status Values\n\n- **`receiving_chunks`:** Chunks are still being received from the client\n- **`uploading_to_s3`:** All chunks received, file is being uploaded to S3\n- **`completed`:** Upload completed successfully\n- **`failed`:** Upload failed\n- **`cancelled`:** Upload was cancelled\n\n### Response Fields\n\n- **`uploadId`:** Unique identifier for this upload\n- **`fileName`:** Original filename\n- **`fileSize`:** Total file size in bytes\n- **`totalChunks`:** Total number of chunks\n- **`receivedChunks`:** Number of chunks received so far\n- **`status`:** Current upload status\n- **`key`:** S3 object key (path)\n- **`cdn`:** CDN URL for accessing the file (only available when completed)\n- **`previewCdn`:** Preview CDN URL for media files (available when media processing completes for images, videos, audio)\n- **`uploadedSize`:** Bytes uploaded to S3 so far (only during S3 upload phase)\n- **`percentage`:** Upload progress percentage (0-100)\n- **`elapsedTime`:** Time elapsed since upload started (milliseconds)\n- **`estimatedTimeRemaining`:** Estimated time remaining (milliseconds)\n\n## Error Responses\n\n### 400 Bad Request\n\n**Missing uploadId:**\n```json\n{\n  \"error\": \"Missing required parameter\",\n  \"details\": \"uploadId parameter is required and must be a non-empty string\",\n  \"code\": \"MISSING_UPLOAD_ID\"\n}\n```\n\n**Invalid Format:**\n```json\n{\n  \"error\": \"Invalid upload ID format\",\n  \"details\": \"uploadId must be a valid chunked upload identifier\",\n  \"code\": \"INVALID_UPLOAD_ID_FORMAT\"\n}\n```\n\n### 404 Not Found\n\n```json\n{\n  \"error\": \"Upload not found\",\n  \"details\": \"No upload found with ID: chunked_1703123456789_abc123def\",\n  \"code\": \"UPLOAD_NOT_FOUND\"\n}\n```\n\n### 500 Internal Server Error\n\n```json\n{\n  \"error\": \"Failed to get upload status\",\n  \"details\": \"An error occurred while retrieving upload status. Please try again.\",\n  \"code\": \"STATUS_ERROR\",\n  \"timestamp\": \"2024-01-15T10:30:00.000Z\"\n}\n```\n\n## Status Codes\n\n- **200 OK:** Status retrieved successfully\n- **400 Bad Request:** Missing or invalid uploadId\n- **404 Not Found:** Upload not found\n- **500 Internal Server Error:** Server error\n\n## Usage Tips\n\n- Poll this endpoint periodically (every 1-2 seconds) to track upload progress\n- The status will change from `receiving_chunks` → `uploading_to_s3` → `completed`\n- Once status is `completed`, the `cdn` field will contain the final file URL\n- For media files (images, videos, audio), `previewCdn` will be available once media processing completes\n- If status is `failed`, check server logs for error details"
+			},
+			"response": [
+				{
+					"name": "Upload In Progress",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/upload?uploadId=chunked_1703123456789_abc123def",
+							"host": ["{{base_url}}"],
+							"path": ["api", "upload"],
+							"query": [
+								{
+									"key": "uploadId",
+									"value": "chunked_1703123456789_abc123def"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"uploadId\": \"chunked_1703123456789_abc123def\",\n  \"fileName\": \"video.mp4\",\n  \"fileSize\": 52428800,\n  \"totalChunks\": 10,\n  \"receivedChunks\": 10,\n  \"status\": \"uploading_to_s3\",\n  \"key\": \"Project/999/video.mp4\",\n  \"cdn\": \"https://cdn.example.com/Project/999/video.mp4\",\n  \"uploadedSize\": 26214400,\n  \"percentage\": 50,\n  \"elapsedTime\": 30000,\n  \"estimatedTimeRemaining\": 30000\n}"
+				},
+				{
+					"name": "Upload Completed",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/upload?uploadId=chunked_1703123456789_abc123def",
+							"host": ["{{base_url}}"],
+							"path": ["api", "upload"],
+							"query": [
+								{
+									"key": "uploadId",
+									"value": "chunked_1703123456789_abc123def"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"uploadId\": \"chunked_1703123456789_abc123def\",\n  \"fileName\": \"video.mp4\",\n  \"fileSize\": 52428800,\n  \"totalChunks\": 10,\n  \"receivedChunks\": 10,\n  \"status\": \"completed\",\n  \"key\": \"Project/999/video.mp4\",\n  \"cdn\": \"https://cdn.example.com/Project/999/video.mp4\",\n  \"previewCdn\": \"https://cdn.example.com/Project/999/video_preview.mp4\",\n  \"uploadedSize\": 52428800,\n  \"percentage\": 100,\n  \"elapsedTime\": 60000,\n  \"estimatedTimeRemaining\": 0\n}"
+				},
+				{
+					"name": "Upload Not Found",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/upload?uploadId=invalid_id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "upload"],
+							"query": [
+								{
+									"key": "uploadId",
+									"value": "invalid_id"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"error\": \"Upload not found\",\n  \"details\": \"No upload found with ID: invalid_id\",\n  \"code\": \"UPLOAD_NOT_FOUND\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Cancel Upload",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/upload?uploadId={{upload_id}}",
+					"host": ["{{base_url}}"],
+					"path": ["api", "upload"],
+					"query": [
+						{
+							"key": "uploadId",
+							"value": "{{upload_id}}",
+							"description": "**Required.** The upload ID of the upload to cancel.\n\n**Format:** Must start with `chunked_` and be at least 20 characters long\n**Example:** `chunked_1703123456789_abc123def`\n**Note:** Only active uploads can be cancelled. Completed or already cancelled uploads will return 404."
+						}
+					]
+				},
+				"description": "Cancels an ongoing upload. This will:\n- Stop any in-progress S3 upload\n- Clean up all stored chunks\n- Remove progress tracking\n- Free up server resources\n\n## Success Response\n\n```json\n{\n  \"message\": \"Upload cancelled successfully\",\n  \"uploadId\": \"chunked_1703123456789_abc123def\",\n  \"timestamp\": \"2024-01-15T10:30:00.000Z\"\n}\n```\n\n## Error Responses\n\n### 400 Bad Request\n\n**Missing uploadId:**\n```json\n{\n  \"error\": \"Missing required parameter\",\n  \"details\": \"uploadId parameter is required and must be a non-empty string\",\n  \"code\": \"MISSING_UPLOAD_ID\"\n}\n```\n\n**Invalid Format:**\n```json\n{\n  \"error\": \"Invalid upload ID format\",\n  \"details\": \"uploadId must be a valid chunked upload identifier\",\n  \"code\": \"INVALID_UPLOAD_ID_FORMAT\"\n}\n```\n\n### 404 Not Found\n\n```json\n{\n  \"error\": \"Upload not found or already completed\",\n  \"details\": \"No active upload found with ID: chunked_1703123456789_abc123def. The upload may have already completed or been cancelled.\",\n  \"code\": \"UPLOAD_NOT_FOUND_OR_COMPLETED\"\n}\n```\n\n### 500 Internal Server Error\n\n```json\n{\n  \"error\": \"Failed to cancel upload\",\n  \"details\": \"An error occurred while cancelling the upload. Please try again.\",\n  \"code\": \"CANCEL_ERROR\",\n  \"timestamp\": \"2024-01-15T10:30:00.000Z\"\n}\n```\n\n## Status Codes\n\n- **200 OK:** Upload cancelled successfully\n- **400 Bad Request:** Missing or invalid uploadId\n- **404 Not Found:** Upload not found or already completed\n- **500 Internal Server Error:** Server error\n\n## Notes\n\n- Only active uploads can be cancelled\n- Once cancelled, the upload cannot be resumed\n- All chunks and temporary files are immediately cleaned up\n- The uploadId becomes invalid after cancellation\n- Use this endpoint to free up server resources for stuck uploads"
+			},
+			"response": [
+				{
+					"name": "Cancel Success",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/upload?uploadId=chunked_1703123456789_abc123def",
+							"host": ["{{base_url}}"],
+							"path": ["api", "upload"],
+							"query": [
+								{
+									"key": "uploadId",
+									"value": "chunked_1703123456789_abc123def"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"message\": \"Upload cancelled successfully\",\n  \"uploadId\": \"chunked_1703123456789_abc123def\",\n  \"timestamp\": \"2024-01-15T10:30:00.000Z\"\n}"
+				},
+				{
+					"name": "Upload Not Found",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/upload?uploadId=chunked_1703123456789_abc123def",
+							"host": ["{{base_url}}"],
+							"path": ["api", "upload"],
+							"query": [
+								{
+									"key": "uploadId",
+									"value": "chunked_1703123456789_abc123def"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"error\": \"Upload not found or already completed\",\n  \"details\": \"No active upload found with ID: chunked_1703123456789_abc123def. The upload may have already completed or been cancelled.\",\n  \"code\": \"UPLOAD_NOT_FOUND_OR_COMPLETED\"\n}"
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string",
+			"description": "Base URL for the API. Default is localhost:3000 for development."
+		},
+		{
+			"key": "project_id",
+			"value": "999",
+			"type": "string",
+			"description": "Project/Product/Profile ID for organizing uploads."
+		},
+		{
+			"key": "category",
+			"value": "project",
+			"type": "string",
+			"description": "Category type: project, product, or profile."
+		},
+		{
+			"key": "upload_id",
+			"value": "chunked_1703123456789_abc123def",
+			"type": "string",
+			"description": "Upload ID returned from POST request. Use this to track progress or cancel uploads."
+		}
+	]
+}
+

@@ -1,0 +1,66 @@
+{
+	"name": "kami-referrals-service",
+	"version": "1.0.0",
+	"description": "API for managing referrals and user sigils",
+	"main": "dist/server.js",
+	"scripts": {
+		"build": "pnpm exec prisma generate --schema=node_modules/kami-platform-v1-schema/prisma/schema.prisma && tsc --skipLibCheck 2>&1 | (grep -v 'ox/core/Errors.ts' || true) | (! grep -q 'error TS' && exit 0 || exit 1)",
+		"start": "node dist/server.js",
+		"dev": "ts-node src/server.ts",
+		"test": "jest",
+		"test:watch": "jest --watch",
+		"test:solidity": "hardhat test",
+		"compile": "hardhat compile",
+		"clean": "hardhat clean",
+		"encrypt-key": "ts-node scripts/encrypt-key.ts"
+	},
+	"prisma": {
+		"schema": "node_modules/kami-platform-v1-schema/prisma/schema.prisma"
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"@prisma/client",
+			"@prisma/engines",
+			"keccak",
+			"prisma",
+			"secp256k1"
+		]
+	},
+	"keywords": [
+		"ethereum",
+		"web3",
+		"express",
+		"viem",
+		"erc1155"
+	],
+	"author": "",
+	"license": "MIT",
+	"dependencies": {
+		"@prisma/client": "6.19.0",
+		"@aws-sdk/client-kms": "^3.0.0",
+		"@aws-sdk/client-secrets-manager": "^3.0.0",
+		"cors": "^2.8.5",
+		"dotenv": "^16.3.1",
+		"express": "^4.18.2",
+		"prisma": "^6.0.0",
+		"viem": "2.44.0",
+		"kami-platform-v1-schema": "workspace:*"
+	},
+	"devDependencies": {
+		"@nomicfoundation/hardhat-chai-matchers": "^2.0.7",
+		"@nomicfoundation/hardhat-toolbox": "^4.0.0",
+		"@openzeppelin/contracts": "^5.0.0",
+		"@types/chai": "^4.3.11",
+		"@types/cors": "^2.8.17",
+		"@types/express": "^4.17.21",
+		"@types/jest": "^29.5.11",
+		"@types/node": "^20.10.6",
+		"@types/supertest": "^2.0.16",
+		"hardhat": "^2.19.0",
+		"jest": "^29.7.0",
+		"supertest": "^6.3.3",
+		"ts-jest": "^29.1.1",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.7.0"
+	}
+}

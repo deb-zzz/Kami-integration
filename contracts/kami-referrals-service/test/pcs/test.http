@@ -1,0 +1,24 @@
+# Create sigil
+POST http://localhost:23456/api/referrals/createSigil
+Content-Type: application/json
+
+{
+    "walletAddress": "0x1A653455cF346034E6BEE40cb80cf7748876Dc7d",
+    "tokenId": 6
+}
+
+###
+# Get current owner
+GET http://localhost:23456/api/sigils/owner
+
+###
+# Transfer ownership
+POST http://localhost:23456/api/sigils/transfer-ownership
+Content-Type: application/json
+
+{ 
+    "newOwner": "0x4D1b615F281B5b3246E7a89D4c93FD439D526f50" 
+}
+
+# 0x020F83755cE765BdF3eD55A0fE0AFEdd1f27F90e
+# 0x4D1b615F281B5b3246E7a89D4c93FD439D526f50

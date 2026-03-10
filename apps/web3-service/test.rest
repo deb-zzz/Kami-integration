@@ -1,0 +1,58 @@
+GET https://tw.kami.ocu-napse.com/backend-wallet/get-all
+Content-Type: 'application/json',
+Authorization: 'Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIweDc5NTI2NUZCRDk5MUM5OUI3Q2E1NDA2ZkYwMjQwYTBGMDhBMWVmMDEiLCJzdWIiOiIweDEyOEZlMTAzOGNDNzU3MWYwOWY3NDcyRUZEOTczQTk1RkU0OURCQjMiLCJhdWQiOiJ0aGlyZHdlYi5jb20iLCJleHAiOjQ4ODIwNDA2OTYsIm5iZiI6MTcyODQ0MDY5NiwiaWF0IjoxNzI4NDQwNjk2LCJqdGkiOiJhOGU5NDQ1NS0wYjY3LTRiMzMtYTM4Yi01NzE0MDc0YWEzNzUiLCJjdHgiOnsicGVybWlzc2lvbnMiOiJBRE1JTiJ9fQ.MHgyYmM3NjFiZDkxMGRlNWQxNjcwZjA5YWEyMjFlYjJiNjdmM2I0ZTQyZTVlZjk2Y2FkOTAyMzYzMzI3MDU1MTc5NmQ0ODRjZDI5ZTExMzk5ZDAxZjJmNjczZDY3ODY3ZWMxZDAzNGQxNjdjMzY5OGNjZGZjNWNjY2VkMDA3MTJlNDFi
+
+###
+
+GET http://localhost:3000/api/backendWallets
+Content-Type: application/json
+
+###
+
+POST http://localhost:3000/api/contract/deploy
+Content-Type: application/json
+
+{
+	"contractType": "ERC721",
+	"contractName": "TestContract",
+	"contractSymbol": "TEST",
+	"baseUri": "https://www.kamiunlimited.com/XYZ"
+}
+
+###
+
+POST http://localhost:3000/api/contract/compile
+Content-Type: application/json
+
+{
+	"contractUri": "http://localhost:3000/sol/ERC721.sol"
+}
+
+###
+GET http://localhost:3002/api/product/119?walletAddress=0x1A653455cF346034E6BEE40cb80cf7748876Dc7d
+Content-Type: application/json
+
+###
+GET http://localhost:3000/api/product/48
+Content-Type: application/json
+
+# ###
+# POST http://localhost:3000/api/ipfs/upload
+# Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW
+# Content-Disposition: form-data; name="file"; filename="test.jpg"
+# Content-Type: image/jpeg
+
+# < ./test.jpg
+# ------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+POST http://localhost:3000/api/ipfs/upload
+Content-Type: application/json
+
+{
+	"url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTURRAvZ1Ec0xo8MKMdA_m5I8iyn0yH0-2fOQ&s"
+}
+
+###

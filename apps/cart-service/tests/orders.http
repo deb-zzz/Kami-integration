@@ -1,0 +1,11 @@
+### Fetch all orders from buyer perspective
+
+GET http://localhost:3000/api/orders?buyerWalletAddress=<buyer_wallet_address>
+
+### Fetch all orders from seller perspective
+
+GET http://localhost:3000/api/orders?sellerWalletAddress=<seller_wallet_address>
+
+### Fetch specific order by ID
+
+GET http://localhost:3000/api/orders/91cc65d1-f1c2-424b-a80e-00a7d4cdb4d2

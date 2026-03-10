@@ -1,0 +1,58 @@
+POST http://localhost:3000/api/web-push/subscription?walletAddress=0x1234567890
+Content-Type: application/json
+
+{
+    "subscription": {
+        "endpoint": "https://fcm.googleapis.com/fcm/send/f-1234567890",
+        "keys": {
+            "p256dh": "1234567890",
+            "auth": "1234567890"
+        }
+    }
+}
+
+###
+
+POST http://localhost:3003/api/web-push/send?walletAddress=0x874c47f25B9B8800de739decE9B05e06a5044854
+Content-Type: application/json
+
+{
+    "topic": "project-collaborator-status-changed",
+    "payload": "{\"projectId\": \"53\", \"walletAddress\": \"0x874c47f25B9B8800de739decE9B05e06a5044854\", \"from\": {\"avatarUrl\": \"https://example.com/avatar.png\", \"userName\": \"John Doe\"}}",
+	"message": "John Doe has added you as a collaborator to the project."
+}
+
+###
+
+POST https://api-gateway.kami.ocu-napse.com/notifications-service/web-push/send?walletAddress=0x874c47f25B9B8800de739decE9B05e06a5044854
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA
+Signature: {}
+
+{
+    "topic": "project-collaborator-status-changed",
+    "payload": "{\"projectId\": \"53\", \"walletAddress\": \"0x874c47f25B9B8800de739decE9B05e06a5044854\", \"from\": {\"avatarUrl\": \"https://example.com/avatar.png\", \"userName\": \"John Doe\"}}",
+	"message": "John Doe has added you as a collaborator to the project."
+}
+
+#########################   
+
+POST http://localhost:3002/api/activity
+Content-Type: application/json
+
+{
+    "walletAddress": "0xfA803e996d78B825e4b182ec83e9FD08e146175F",
+    "entityId": "0xfA803e996d78B825e4b182ec83e9FD08e146175F",
+    "entityType": "User",
+    "entitySubType": "Updated",
+    "payload": "{\"walletAddress\": \"0xfA803e996d78B825e4b182ec83e9FD08e146175F\", \"items\": {\"avatarUrl\": \"https://example.com/avatar.png\", \"userName\": \"John Doe\"}}",
+	"message": "You updated your profile."
+}
+
+#########################   
+
+GET http://localhost:3001/api/activity?walletAddress=0x874c47f25B9B8800de739decE9B05e06a5044854
+Content-Type: application/json
+
+###
+

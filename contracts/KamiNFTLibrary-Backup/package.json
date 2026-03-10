@@ -1,0 +1,62 @@
+{
+	"name": "@paulstinchcombe/kaminftlibrary-backup",
+	"version": "0.0.1",
+	"description": "A comprehensive Solidity library providing extended features for ERC721 contracts including programmable royalties, ERC20 payment integration, platform commission system, time-based rental system, and mandatory royalty enforcement.",
+	"main": "index.js",
+	"files": [
+		"contracts/",
+		"hardhat.config.ts",
+		"README.md"
+	],
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"compile": "hardhat compile",
+		"clean": "hardhat clean",
+		"test:unit": "hardhat test",
+		"coverage": "hardhat coverage",
+		"lint": "solhint 'contracts/**/*.sol'",
+		"lint:fix": "solhint 'contracts/**/*.sol' --fix"
+	},
+	"keywords": [
+		"solidity",
+		"ethereum",
+		"smart-contracts",
+		"erc721",
+		"nft",
+		"royalties",
+		"rental",
+		"library",
+		"openzeppelin",
+		"defi",
+		"kami"
+	],
+	"author": "Paul Stinchcombe",
+	"license": "MIT",
+	"type": "commonjs",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/paulstinchcombe/kaminftlibrary.git"
+	},
+	"bugs": {
+		"url": "https://github.com/paulstinchcombe/kaminftlibrary/issues"
+	},
+	"homepage": "https://github.com/paulstinchcombe/kaminftlibrary#readme",
+	"engines": {
+		"node": ">=16.0.0",
+		"npm": ">=8.0.0"
+	},
+	"devDependencies": {
+		"@nomicfoundation/hardhat-toolbox": "^6.0.0",
+		"hardhat": "^2.25.0"
+	},
+	"dependencies": {
+		"@openzeppelin/contracts": "^5.0.0",
+		"@paulstinchcombe/kaminftlibrary": "^0.0.1"
+	},
+	"peerDependencies": {
+		"@openzeppelin/contracts": "^5.0.0"
+	},
+	"publishConfig": {
+		"access": "private"
+	}
+}

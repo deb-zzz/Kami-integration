@@ -1,0 +1,31 @@
+POST http://localhost:3000/api/role
+Content-Type: application/json
+
+{
+    "id": "paul",
+    "name": "Paul",
+    "description": "Role for supporting Paul.",
+    "permissions": [
+        "dashboard:view",
+        "transactions:view",
+        "reports:view"
+    ]
+}
+
+###
+
+GET http://localhost:3000/api/role/paul
+
+###
+
+PUT http://localhost:3000/api/role
+Content-Type: application/json
+
+{
+    "id": "paul",
+    "permissions": ["dashboard:view", "transactions:view", "reports:view"]
+}
+
+###
+
+DELETE http://localhost:3000/api/role/paul

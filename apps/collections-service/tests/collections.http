@@ -1,0 +1,44 @@
+GET http://localhost:3000/api/0x1A653455cF346034E6BEE40cb80cf7748876Dc7d
+Content-Type: application/json
+
+###
+
+GET http://localhost:3000/api/0x1A653455cF346034E6BEE40cb80cf7748876Dc7d?withProducts='true'&userWalletAddress=0x1A653455cF346034E6BEE40cb80cf7748876Dc7d&showHidden=true
+Content-Type: application/json
+
+###
+
+GET http://localhost:3001/api/0x16c607Dbe5e4959B159510C63925051e31d2E0A6/9
+Content-Type: application/json
+
+###
+
+POST http://localhost:3002/api/0xcE228C60C6D668aFBBd536f6d729fb69089AC878
+Content-Type: application/json
+
+{
+    "name": "Another Collection by Paul",
+    "description": "A collection of products.",
+    "symbol": "PCS",
+    "projectId": 212,
+    "chainId":"0x14a34"
+}
+
+###
+
+PUT http://localhost:3000/api/0x16c607Dbe5e4959B159510C63925051e31d2E0A6/4
+Content-Type: application/json
+
+{
+    "name": "Paul's Collection",
+    "description": "A collection of products",
+    "projectId": 2
+}
+
+###
+
+GET https://api-gateway.kami.ocu-napse.com/collections-service/0x16c607Dbe5e4959B159510C63925051e31d2E0A6?withProducts
+Content-Type: application/json
+Authorization: BEARER eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..7rl064gd8TLl-4ouT6v18g.1rPuUNOF5r29_5MxCWl_ItIlHlzdkDR9xj-w2mM_q9-uPwglew2ocCitOMRavuske__SVNLFR6bZxKwIrfvdN60kT6cZUThOEfWCmrcitOM.n9R5AP-5PZ3aEeUxw4OQtA
+
+###

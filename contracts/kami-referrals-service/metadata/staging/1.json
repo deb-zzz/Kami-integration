@@ -1,0 +1,19 @@
+{
+	"name": "Tribeguide",
+	"contractAddress": "0xbe7e511ff0e2d4ecf55c493b839c0a6f62657070",
+	"tokenId": 1,
+	"tokenStandard": "ERC1155",
+	"description": "You’re the heartbeat of your people, the one people gather around. You spark conversations, set the tone, and make everyone feel like they belong. You lead with personality, insight, humour and heart, others look to you to guide the vibe. You don’t just grow an audience — you grow a community.",
+	"htmlDescription": "<p class='p1'><span class='s1'>You&rsquo;re the heartbeat of your people,<br /></span><span class='s1'>the one people gather around.<span class='Apple-converted-space'>&nbsp;<br /></span></span><span class='s1'>You spark conversations, set the tone,<br /></span><span class='s1'>and make everyone feel like they belong.</span></p><p class='p1'><span class='s1'>You lead with<br /></span><span class='s1'>personality,<br /></span><span class='s1'>insight,<br /></span><span class='s1'>humour<br /></span><span class='s1'>and heart,<br /></span><span class='s1'>others look to you to guide the vibe.</span></p><p class='p2'>You don&rsquo;t just grow an audience<br /><span class='s1'>&mdash; you grow a community.</span></p><p class='p1'>&nbsp;</p>",
+	"image": "ipfs://QmYhFgP8wJ3AxaqiK8WTL6tpqZu6Zg3K6CJxApYdbEL4Jj",
+	"attributes": [
+		{
+			"trait_type": "Archetype",
+			"value": "Tribeguide"
+		},
+		{
+			"trait_type": "Series",
+			"value": "KAMI Genesis Sigil"
+		}
+	]
+}
